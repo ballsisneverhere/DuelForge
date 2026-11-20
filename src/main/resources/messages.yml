@@ -1,0 +1,309 @@
+prefix: "&8[&6DuelForge&8] &7"
+
+no-permission: "&cYou don't have permission."
+player-only: "&cOnly players can do that."
+player-not-found: "&cPlayer not found."
+kit-not-found: "&cThat kit does not exist."
+arena-not-found: "&cThat arena does not exist."
+kit-locked: "&cYou don't have access to that kit."
+cannot-duel-self: "&cYou can't duel yourself."
+already-in-match: "&cYou are already in a match."
+not-in-match: "&cYou are not in a match."
+target-in-match: "&c{player} is already in a match."
+arena-busy: "&cThat arena is currently in use."
+no-arena: "&cNo free arena is available right now."
+no-arenas-configured: "&cNo arenas are set up yet. An admin must create one."
+ranked-disabled: "&cRanked duels are disabled."
+ffa-disabled: "&cFree-for-all matches are disabled."
+spectate-disabled: "&cSpectating is disabled."
+blocked-command: "&cYou can't use that command during a match. Use &f/duel leave &cto quit."
+usage-duel: "&cUsage: &f/duel <player> [kit] [arena] [ranked]"
+out-of-bounds: "&cYou can't leave the arena!"
+reloaded: "&aConfiguration reloaded."
+
+request:
+  sent: "&aDuel request sent to &f{player}&a. (&f{kit}&a, {mode}&a)"
+  received: "&e{player} &7challenged you to a &f{kit} &7duel &8({mode}&8) &7on &f{arena}&7."
+  accept-button: "&a&l[ACCEPT]"
+  accept-hover: "&7Click to accept the duel"
+  deny-button: "&c&l[DENY]"
+  deny-hover: "&7Click to deny the duel"
+  none: "&cYou have no pending duel request."
+  denied: "&c{player} denied your duel request."
+  you-denied: "&7You denied the duel request from &f{player}&7."
+  expired: "&7Your duel request to &f{player} &7expired."
+  player-offline: "&cThat player is no longer online."
+  ranked: "&6Ranked"
+  unranked: "&7Unranked"
+  random-arena: "Random"
+
+match:
+  starting: "&aYour match starts in a moment!"
+  left: "&e{player} &7left the match."
+  you-left: "&7You left the match."
+  forfeit: "&c{player} forfeited."
+  timeout: "&eTime is up!"
+  aborted: "&cThe match was cancelled because a player left."
+  end:
+    winner: "&6&l{winner} &ewon the match!"
+    draw: "&eThe match ended in a draw."
+    player-line: "&7{player}: &f{kills} kills &7/ &f{deaths} deaths"
+    elo: "&7{player}: &f{elo} &8({change}&8)"
+  killstreak: "&c&l{player} &eis on a &c{streak} &ekill streak!"
+  respawn: "&eYou were eliminated a life! &c{lives} &elives left."
+  eliminated: "&cYou have been eliminated! &7Use /duel leave to go back."
+  lives-left: "&7{player} has &f{lives} &7lives left."
+
+killfeed:
+  player: "&c{killer} &8» &7killed &f{victim} &8[&7{weapon}&8]"
+  environment: "&f{victim} &7died to &c{cause}&7."
+
+title:
+  get-ready: "&aGet ready!"
+  get-ready-sub: "&7Kit: &f{kit}"
+  countdown: "&e{seconds}"
+  fight: "&c&lFIGHT!"
+  victory: "&6&lVICTORY!"
+  victory-sub: "&7You won the match"
+  defeat: "&c&lDEFEAT"
+  defeat-sub: "&7Better luck next time"
+  draw: "&e&lDRAW"
+  eliminated: "&c&lELIMINATED"
+  died: "&c&lYOU DIED"
+  died-sub: "&7{lives} lives left"
+  actionbar-cooldown: "&c{ability} &7on cooldown: &f{seconds}s"
+  no-target: "&cNo target in sight."
+
+ffa:
+  created: "&aFree-for-all lobby created! Others can join with &f/duel ffa&a. Start with &f/duel start&a."
+  announce: "&e{player} &7opened a &f{kit} &7free-for-all on &f{arena}&7."
+  join-button: "&a&l[JOIN]"
+  join-hover: "&7Click to join the lobby"
+  joined: "&aYou joined {host}'s lobby. &7({count}/{max})"
+  player-joined: "&e{player} &7joined the lobby. &8({count}/{max})"
+  player-left: "&e{player} &7left the lobby. &8({count}/{max})"
+  full: "&cThat lobby is full."
+  not-open: "&cThat lobby is no longer open."
+  no-lobby: "&cYou are not hosting a lobby."
+  not-enough: "&cYou need at least {min} players."
+  cancelled: "&cThe lobby was closed."
+  starting-in: "&eMatch starts in &f{seconds}&e seconds."
+
+spectate:
+  started: "&7You are now spectating. Use &f/duel leave &7to stop."
+  stopped: "&7You stopped spectating."
+  not-found: "&cThat player is not in a match."
+  no-matches: "&cThere are no matches to spectate."
+
+rematch:
+  prompt: "&7Want another round?"
+  button: "&6&l[REMATCH]"
+  hover: "&7Click to challenge {player} again"
+  none: "&cYou have no recent duel to rematch."
+  expired: "&cThat rematch has expired."
+
+ability:
+  cooldown: "&c{ability} &7on cooldown: &f{seconds}s"
+  used: "&7Used {ability}&7."
+
+editor:
+  opened: "&7Rearrange your inventory layout, then click &aSave&7."
+  saved: "&aSaved your &f{kit} &alayout."
+  reset: "&7Layout reset to default."
+  invalid: "&cInvalid layout! Don't leave items on your cursor."
+
+stats:
+  header: "&6&lStats for &e{player}"
+  line: "&7Wins: &f{wins} &8| &7Losses: &f{losses} &8| &7Kills: &f{kills} &8| &7Deaths: &f{deaths}"
+  line2: "&7K/D: &f{kd} &8| &7Streak: &f{streak} &8(best {best}) &8| &7Elo: &f{elo}"
+  top-header: "&6&lTop players by {metric}"
+  top-line: "&e#{rank} &f{player} &8- &7{value}"
+  reset: "&aStats reset for {player}."
+  none: "&7No stats recorded yet."
+
+admin:
+  arena-created: "&aArena &f{name} &acreated."
+  arena-exists: "&cThat arena already exists."
+  arena-deleted: "&aArena deleted."
+  arena-saved: "&aArena updated."
+  arena-quick: "&aQuick arena &f{name} &acreated around you (radius {radius}, {spawns} spawns)."
+  arena-not-ready: "&eArena &f{name} &eis not ready yet: needs bounds (pos1+pos2) and at least 2 spawns."
+  arena-in-use: "&cThat arena is in use right now."
+  lobby-set: "&aLobby location saved."
+  ended: "&aMatch ended."
+  arena-list-entry: "&7- &f{name} &8({state}&8)"
+  arena-info: "&7{name} &8| &7world &f{world} &8| &7bounds &f{bounds} &8| &7spawns &f{spawns} &8| &7ready &f{ready} &8| &7building &f{building}"
+  usage: "&7/duel admin &f<reload|arena|setlobby|end|resetstats>"
+  arena-usage: "&7/duel admin arena &f<create|quick|delete|pos1|pos2|addspawn|clearspawns|spectator|toggle|building|icon|list|info> [name]"
+
+scoreboard:
+  title: "&6&lDUELFORGE"
+  lines:
+    duel:
+      - "&7&m                  "
+      - "&fKit: &e{kit}"
+      - "&fMode: {mode}"
+      - "&fTime: &e{time}"
+      - " "
+      - "&fOpponent: &c{opponent}"
+      - "&fKills: &a{kills} &7| &fDeaths: &c{deaths}"
+      - "&fLives: &e{lives}"
+      - "  "
+      - "&6play.yourserver.net"
+    ffa:
+      - "&7&m                  "
+      - "&fKit: &e{kit}"
+      - "&fTime: &e{time}"
+      - " "
+      - "&fAlive: &a{alive}&7/&f{total}"
+      - "&fKills: &a{kills}"
+      - "&fDeaths: &c{deaths}"
+      - "&fLives: &e{lives}"
+      - "  "
+      - "&6play.yourserver.net"
+    spectator:
+      - "&7&m                  "
+      - "&fSpectating"
+      - "&fKit: &e{kit}"
+      - "&fTime: &e{time}"
+      - "&fAlive: &a{alive}&7/&f{total}"
+      - "  "
+      - "&6play.yourserver.net"
+
+gui:
+  back: "&c« Back"
+  close: "&cClose"
+  next: "&aNext page »"
+  previous: "&a« Previous page"
+  page: "&7Page &f{page}&7/&f{pages}"
+  nothing: "&7Nothing here yet."
+  hub:
+    title: "&8DuelForge"
+    duel:
+      name: "&b&lChallenge a Player"
+      lore: ["&7Pick a friend, a kit and an arena."]
+    ffa:
+      name: "&c&lFree-For-All"
+      lore: ["&7Create or join a multiplayer lobby."]
+    kits:
+      name: "&6&lKits"
+      lore: ["&7Browse kit previews."]
+    editor:
+      name: "&d&lKit Editor"
+      lore: ["&7Customize your inventory layout."]
+    invites:
+      name: "&a&lInvitations"
+      lore: ["&7Pending requests: &f{count}"]
+    stats:
+      name: "&e&lMy Stats"
+      lore: ["&7View your statistics and the leaderboard."]
+    spectate:
+      name: "&7&lSpectate"
+      lore: ["&7Watch ongoing matches."]
+  players:
+    title: "&8Choose an opponent"
+    lore: ["&7Click to challenge."]
+  kits:
+    title: "&8Kits"
+    select-title: "&8Select a kit"
+    editor-title: "&8Edit which kit?"
+    lore-select: "&eLeft-click &7to select"
+    lore-preview: "&eRight-click &7to preview"
+    lore-preview-only: "&eClick &7to preview"
+    locked: "&cLocked"
+    regen: "&7Natural regen: {value}"
+    hunger: "&7Hunger: {value}"
+    fall: "&7Fall damage: {value}"
+    effect: "&7Effect: &f{effect} {level}"
+    yes: "&aYes"
+    no: "&cNo"
+  preview:
+    title: "&8Kit: {kit}"
+    select: "&a&lSelect this kit"
+    helmet: "&7Helmet"
+  arenas:
+    title: "&8Select an arena"
+    free: "&aAvailable"
+    busy: "&cIn use"
+    random:
+      name: "&b&lRandom Arena"
+      lore: ["&7Pick any free arena."]
+    click: "&eClick &7to select"
+  setup:
+    title: "&8Match setup"
+    kit:
+      name: "&6Kit: &f{kit}"
+      lore: ["&7Click to change"]
+    arena:
+      name: "&6Arena: &f{arena}"
+      lore: ["&7Click to change"]
+    ranked:
+      name: "&6Mode: {mode}"
+      lore: ["&7Click to toggle ranked / unranked"]
+    ffa-mode:
+      name: "&6Mode: &cFree-For-All"
+      lore: ["&7Last player standing wins."]
+    preview:
+      name: "&bPreview kit"
+      lore: ["&7See equipment and abilities."]
+    send:
+      name: "&a&lSend challenge"
+      lore: ["&7Challenge &f{target}"]
+    create:
+      name: "&a&lCreate lobby"
+      lore: ["&7Open this match for others to join."]
+    cancel:
+      name: "&c&lCancel"
+      lore: []
+  invites:
+    title: "&8Duel invitations"
+    lore: ["&7Kit: &f{kit}", "&7Arena: &f{arena}", "&7Mode: {mode}", "&7Expires in: &f{seconds}s", "", "&aLeft-click &7to accept", "&cRight-click &7to deny"]
+  lobbies:
+    title: "&8Free-for-all lobbies"
+    name: "&c{host}'s lobby"
+    lore: ["&7Kit: &f{kit}", "&7Arena: &f{arena}", "&7Players: &f{count}/{max}", "", "&eClick &7to join"]
+    host-lore: ["&7Kit: &f{kit}", "&7Arena: &f{arena}", "&7Players: &f{count}/{max}", "", "&eClick &7to start the match"]
+    create:
+      name: "&a&lCreate lobby"
+      lore: ["&7Host a new free-for-all."]
+  spectate:
+    title: "&8Spectate a match"
+    name: "&e{kit} &7match"
+    lore: ["&7Arena: &f{arena}", "&7Players: &f{players}", "&7State: &f{state}", "", "&eClick &7to spectate"]
+  stats:
+    title: "&8Stats: {player}"
+    head: "&e&l{player}"
+    wins: "&aWins: &f{value}"
+    losses: "&cLosses: &f{value}"
+    wl: "&6W/L ratio: &f{value}"
+    kills: "&aKills: &f{value}"
+    deaths: "&cDeaths: &f{value}"
+    kd: "&6K/D ratio: &f{value}"
+    streak: "&eKill streak: &f{value} &8(best {best})"
+    elo: "&bElo: &f{value}"
+    top: "&6&lTop players"
+    top-entry: "&e#{rank} &f{player}"
+    top-lore: ["&7Wins: &f{wins}", "&7Kills: &f{kills}", "&7Elo: &f{elo}"]
+  editor:
+    title: "&8Editing: {kit}"
+    save:
+      name: "&a&lSave layout"
+      lore: ["&7Click to save."]
+    reset:
+      name: "&e&lReset to default"
+      lore: ["&7Restore the default layout."]
+    info:
+      name: "&dHotbar is the row above"
+      lore: ["&7Drag items to rearrange them."]
+
+help:
+  - "&6&lDuelForge &7commands"
+  - "&e/duel &7- open the main menu"
+  - "&e/duel <player> [kit] [arena] [ranked] &7- challenge a player"
+  - "&e/accept &7| &e/deny &7- answer a challenge"
+  - "&e/duel leave &7- leave your match / lobby / spectating"
+  - "&e/duel ffa &7- free-for-all lobbies, &e/duel start &7to begin yours"
+  - "&e/duel spectate [player] &7- watch a match"
+  - "&e/duel rematch &7- rematch your last opponent"
+  - "&e/duel kits &7| &e/duel editkit &7- browse kits / edit your layout"
+  - "&e/duelstats [player|top] &7- statistics"

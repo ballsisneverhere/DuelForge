@@ -1,0 +1,142 @@
+# DuelForge kits.
+# Slots: 0-8 = hotbar, 9-35 = inventory (editable by players in the kit editor).
+#        helmet / chestplate / leggings / boots / offhand = fixed equipment.
+# Item keys: item, amount, name, lore, enchants {name: level}, unbreakable, color "#RRGGBB" (leather),
+#            ability <id from config.yml abilities>, potion {effect, seconds, level}
+# Enchant / effect names use vanilla ids (sharpness, fire_aspect, speed, slowness, instant_health ...).
+unbreakable-items: true
+
+kits:
+  classic:
+    display-name: "&b&lClassic"
+    icon: DIAMOND_SWORD
+    description:
+      - "&7The traditional PvP experience."
+      - "&7Diamond gear, a bow and golden apples."
+    settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 15}
+    items:
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1}}
+      - {slot: 0, item: DIAMOND_SWORD, enchants: {sharpness: 1}}
+      - {slot: 1, item: BOW}
+      - {slot: 2, item: GOLDEN_APPLE, amount: 6}
+      - {slot: 3, item: FISHING_ROD}
+      - {slot: 8, item: ARROW, amount: 24}
+
+  uhc:
+    display-name: "&6&lUHC"
+    icon: GOLDEN_APPLE
+    description:
+      - "&7No natural regeneration."
+      - "&7Heal only with golden apples and heads."
+    settings: {natural-regen: false, hunger: true, fall-damage: true, ender-pearl-cooldown: 15}
+    items:
+      - {slot: helmet, item: IRON_HELMET, enchants: {protection: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE}
+      - {slot: leggings, item: IRON_LEGGINGS, enchants: {protection: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS}
+      - {slot: 0, item: DIAMOND_SWORD}
+      - {slot: 1, item: BOW}
+      - {slot: 2, item: GOLDEN_APPLE, amount: 3}
+      - {slot: 3, item: PLAYER_HEAD, amount: 2, ability: golden_head}
+      - {slot: 4, item: WATER_BUCKET}
+      - {slot: 5, item: COBBLESTONE, amount: 48}
+      - {slot: 6, item: COOKED_BEEF, amount: 16}
+      - {slot: 8, item: ARROW, amount: 20}
+
+  op:
+    display-name: "&c&lOP"
+    icon: NETHERITE_SWORD
+    description:
+      - "&7Overpowered netherite gear."
+      - "&7Includes a lightning wand."
+    settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 8}
+    items:
+      - {slot: helmet, item: NETHERITE_HELMET, enchants: {protection: 4, unbreaking: 3}}
+      - {slot: chestplate, item: NETHERITE_CHESTPLATE, enchants: {protection: 4, unbreaking: 3}}
+      - {slot: leggings, item: NETHERITE_LEGGINGS, enchants: {protection: 4, unbreaking: 3}}
+      - {slot: boots, item: NETHERITE_BOOTS, enchants: {protection: 4, unbreaking: 3, feather_falling: 4}}
+      - {slot: 0, item: NETHERITE_SWORD, enchants: {sharpness: 5, fire_aspect: 2, knockback: 1}}
+      - {slot: 1, item: BOW, enchants: {power: 5, punch: 2, infinity: 1}}
+      - {slot: 2, item: ENCHANTED_GOLDEN_APPLE, amount: 4}
+      - {slot: 3, item: NETHERITE_AXE, enchants: {sharpness: 5}}
+      - {slot: 4, item: ENDER_PEARL, amount: 4}
+      - {slot: 5, item: BLAZE_ROD, ability: thunder}
+      - {slot: 6, item: SPLASH_POTION, amount: 3, name: "&dHealing Splash", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 7, item: GOLDEN_APPLE, amount: 16}
+      - {slot: 9, item: ARROW}
+
+  archer:
+    display-name: "&a&lArcher"
+    icon: BOW
+    description:
+      - "&7Fight from range with a powerful bow."
+      - "&7Use Leap to get away and keep shooting."
+    settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 15}
+    items:
+      - {slot: helmet, item: LEATHER_HELMET, color: "#2E8B57", enchants: {protection: 2}}
+      - {slot: chestplate, item: CHAINMAIL_CHESTPLATE, enchants: {protection: 1}}
+      - {slot: leggings, item: LEATHER_LEGGINGS, color: "#2E8B57", enchants: {protection: 2}}
+      - {slot: boots, item: LEATHER_BOOTS, color: "#2E8B57", enchants: {protection: 2, feather_falling: 3}}
+      - {slot: 0, item: BOW, enchants: {power: 3, punch: 1, infinity: 1}}
+      - {slot: 1, item: IRON_SWORD}
+      - {slot: 2, item: GOLDEN_APPLE, amount: 4}
+      - {slot: 3, item: RABBIT_FOOT, ability: leap}
+      - {slot: 9, item: ARROW}
+
+  tank:
+    display-name: "&9&lTank"
+    icon: NETHERITE_CHESTPLATE
+    description:
+      - "&7Heavy armor and a shield."
+      - "&7Slower, but very durable. Slam the ground to push enemies away."
+    effects:
+      - {type: slowness, level: 1}
+    settings: {natural-regen: true, hunger: false, fall-damage: false, ender-pearl-cooldown: 20}
+    items:
+      - {slot: helmet, item: NETHERITE_HELMET, enchants: {protection: 3}}
+      - {slot: chestplate, item: NETHERITE_CHESTPLATE, enchants: {protection: 4}}
+      - {slot: leggings, item: NETHERITE_LEGGINGS, enchants: {protection: 4}}
+      - {slot: boots, item: NETHERITE_BOOTS, enchants: {protection: 3}}
+      - {slot: offhand, item: SHIELD}
+      - {slot: 0, item: IRON_SWORD, enchants: {sharpness: 1}}
+      - {slot: 1, item: ANVIL, ability: slam}
+      - {slot: 2, item: GOLDEN_APPLE, amount: 4}
+
+  ninja:
+    display-name: "&8&lNinja"
+    icon: ENDER_EYE
+    description:
+      - "&7Fast, light and deadly."
+      - "&7Dash through enemies and vanish in smoke."
+    effects:
+      - {type: speed, level: 2}
+    settings: {natural-regen: true, hunger: false, fall-damage: false, ender-pearl-cooldown: 15}
+    items:
+      - {slot: helmet, item: LEATHER_HELMET, color: "#111111", enchants: {protection: 1}}
+      - {slot: chestplate, item: LEATHER_CHESTPLATE, color: "#111111", enchants: {protection: 1}}
+      - {slot: leggings, item: LEATHER_LEGGINGS, color: "#111111", enchants: {protection: 1}}
+      - {slot: boots, item: LEATHER_BOOTS, color: "#111111", enchants: {protection: 1, feather_falling: 4}}
+      - {slot: 0, item: IRON_SWORD, enchants: {sharpness: 2}}
+      - {slot: 1, item: FEATHER, ability: dash}
+      - {slot: 2, item: INK_SAC, ability: smoke_bomb}
+      - {slot: 3, item: GOLDEN_APPLE, amount: 3}
+
+  axe:
+    display-name: "&4&lAxe"
+    icon: DIAMOND_AXE
+    description:
+      - "&7Heavy axe strikes, shield to defend."
+      - "&7Berserk grants a burst of strength."
+    settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 15}
+    items:
+      - {slot: helmet, item: IRON_HELMET, enchants: {protection: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE}
+      - {slot: leggings, item: IRON_LEGGINGS, enchants: {protection: 2}}
+      - {slot: boots, item: IRON_BOOTS, enchants: {protection: 2}}
+      - {slot: offhand, item: SHIELD}
+      - {slot: 0, item: DIAMOND_AXE, enchants: {sharpness: 3, efficiency: 2}}
+      - {slot: 1, item: BLAZE_POWDER, ability: berserk}
+      - {slot: 2, item: GOLDEN_APPLE, amount: 4}

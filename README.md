@@ -1,0 +1,103 @@
+# DuelForge
+
+A full-featured **kit PvP / duels plugin** for **Paper and Spigot** (1.20.x, Java 17).
+Challenge friends, run free-for-alls, play ranked, spectate, edit your kit layout, and enjoy a polished GUI.
+
+## Features
+
+| Area | What you get |
+|------|--------------|
+| **Kits** | Classic, UHC, OP, Archer, Tank, Ninja, Axe – every kit is fully defined in `kits.yml` (items, armor, enchants, effects, abilities, regen / hunger / fall-damage rules) |
+| **Duels** | `/duel <player>`, `/accept`, `/deny`, `/duel leave`, kit + arena + ranked choice, countdown, clickable chat invites, rematch |
+| **FFA** | Lobbies with lives, auto-start timer, respawn protection, last-player-standing |
+| **Arenas** | Cuboid bounds, multiple spawns, spectator spawn, escape prevention (move + teleport + pearls), **automatic block restore** after each match |
+| **Combat** | Kill feed, kill streaks, kill/victory effects, hit sounds, per-kit abilities with cooldowns, void kills, no item drops, no inventory exploits, command blocking |
+| **Stats** | Wins, losses, kills, deaths, kill streak, win streak, **Elo** (ranked 1v1), saved to `stats.yml` (atomic, async) |
+| **GUI** | Hub, player picker, setup menu, kit browser, kit **preview** (armor, items, abilities), arena picker, invitations, stats + leaderboard, FFA lobbies, spectate list, **kit layout editor** |
+| **Safety** | Player inventory/location/effects are snapshotted to disk during matches and restored on quit, shutdown, **or after a crash** |
+
+## Build
+
+```bash
+mvn package
+# -> target/DuelForge-1.0.0.jar
+```
+
+Drop the jar into `plugins/`, start the server once, then set up an arena.
+
+## Quick start
+
+1. Stand on flat ground where you want the arena and run
+   `/duel admin arena quick arena1 15` – instantly creates a cube arena with 4 spawns.
+   (Or build it manually: `create`, `pos1`, `pos2`, `addspawn` ×2+, `spectator`.)
+2. `/duel` opens the menu. `/duel <friend>` starts a challenge.
+3. Optional: `/duel admin setlobby` and set `lobby.return-to-lobby: true` in `config.yml`.
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `/duel` | Main menu |
+| `/duel <player> [kit] [arena\|random] [ranked]` | Challenge (opens the setup GUI when kit is omitted) |
+| `/accept [player]`, `/deny [player]` | Answer a challenge (also clickable in chat) |
+| `/duel leave` | Leave a match, lobby, or stop spectating |
+| `/duel ffa [create]`, `/duel join <host>`, `/duel start` | Free-for-all lobbies |
+| `/duel spectate [player]` | Watch a match |
+| `/duel rematch` | Challenge your last opponent again |
+| `/duel kits`, `/duel kit <id>`, `/duel editkit` | Browse / preview / edit kits |
+| `/duel invites` | Pending invitations menu |
+| `/duelstats [player\|top [wins\|kills\|elo]]` | Statistics |
+| `/duel admin reload` | Reload config, kits, messages |
+| `/duel admin arena <create\|quick\|delete\|pos1\|pos2\|addspawn\|clearspawns\|spectator\|toggle\|building\|icon\|list\|info\|tp> [name]` | Arena management |
+| `/duel admin setlobby`, `end [player]`, `resetstats <player>` | Misc admin |
+
+## Permissions
+
+`duelforge.use`, `.duel`, `.ffa`, `.ranked`, `.spectate`, `.editkit`, `.stats` (all default **true**);
+`duelforge.admin`, `duelforge.bypass.commands` (default **op**).
+Each kit can additionally require a permission via `permission:` in `kits.yml`.
+
+## Configuration files
+
+- `config.yml` – timers, lives, Elo, sounds, particles, ability values and cooldowns
+- `kits.yml` – kits (slots 0-8 hotbar, 9-35 inventory; `helmet/chestplate/leggings/boots/offhand`)
+- `arenas.yml` – written by the arena commands
+- `messages.yml` – every message, GUI label and scoreboard line (supports `&` and `&#RRGGBB`)
+- `stats.yml`, `layouts.yml`, `snapshots/` – data (generated)
+
+### Adding a kit
+
+```yaml
+kits:
+  sumo:
+    display-name: "&e&lSumo"
+    icon: LEAD
+    settings: {natural-regen: true, hunger: false, fall-damage: false}
+    effects: [{type: resistance, level: 5}]
+    items:
+      - {slot: 0, item: STICK, enchants: {knockback: 2}}
+```
+
+Abilities (`ability: dash | smoke_bomb | slam | leap | berserk | thunder | golden_head`) are tuned in `config.yml`.
+
+## Compatibility notes
+
+Built against Spigot API 1.20.4. Enchantments, potion effects, sounds and particles are resolved by name at runtime so
+the same jar is intended to work on newer Paper/Spigot versions as well.
+
+## Publishing to GitHub
+
+```bash
+git init
+git add .
+git commit -m "Initial commit: DuelForge"
+git branch -M main
+git remote add origin https://github.com/<you>/DuelForge.git
+git push -u origin main
+```
+
+The included GitHub Actions workflow (`.github/workflows/build.yml`) builds the jar on every push and uploads it as an artifact.
+
+## License
+
+MIT

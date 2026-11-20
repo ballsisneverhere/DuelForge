@@ -1,0 +1,49 @@
+name: DuelForge
+version: '${project.version}'
+main: dev.duelforge.DuelForge
+api-version: '1.20'
+author: DuelForge
+description: Kit-based PvP duels, free-for-all matches, ranked play, spectating and more.
+commands:
+  duel:
+    description: Open the duel menu or use a duel sub-command
+    usage: /duel [player|accept|deny|leave|stats|ffa|spectate|rematch|kits|editkit|admin]
+    aliases: [duels, pvp]
+  accept:
+    description: Accept a duel request
+    usage: /accept [player]
+  deny:
+    description: Deny a duel request
+    usage: /deny [player]
+  duelstats:
+    description: View duel statistics
+    usage: /duelstats [player|top]
+    aliases: [dstats]
+permissions:
+  duelforge.use:
+    description: Use DuelForge at all
+    default: true
+  duelforge.duel:
+    description: Send and accept duels
+    default: true
+  duelforge.ffa:
+    description: Create and join free-for-all lobbies
+    default: true
+  duelforge.ranked:
+    description: Play ranked duels
+    default: true
+  duelforge.spectate:
+    description: Spectate matches
+    default: true
+  duelforge.editkit:
+    description: Use the kit layout editor
+    default: true
+  duelforge.stats:
+    description: View statistics
+    default: true
+  duelforge.bypass.commands:
+    description: Use any command during a match
+    default: op
+  duelforge.admin:
+    description: Manage arenas, reload and force-end matches
+    default: op

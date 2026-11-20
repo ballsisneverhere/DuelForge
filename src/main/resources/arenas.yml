@@ -1,0 +1,5 @@
+# Arenas are normally created in-game:
+#   /duel admin arena quick <name> [radius]   (instant arena around you, needs flat ground)
+#   /duel admin arena create <name>  then pos1 / pos2 / addspawn / spectator
+# This file is rewritten by the plugin when arenas change.
+arenas: {}
