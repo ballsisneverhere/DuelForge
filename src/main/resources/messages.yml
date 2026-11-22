@@ -20,6 +20,10 @@ blocked-command: "&cYou can't use that command during a match. Use &f/duel leave
 usage-duel: "&cUsage: &f/duel <player> [kit] [arena] [ranked]"
 out-of-bounds: "&cYou can't leave the arena!"
 reloaded: "&aConfiguration reloaded."
+lobby-not-set: "&cThe lobby has not been set yet. An admin can use &f/duel admin setlobby&c."
+
+protection:
+  no-build: "&cYou can only break blocks during a duel."
 
 request:
   sent: "&aDuel request sent to &f{player}&a. (&f{kit}&a, {mode}&a)"
@@ -122,6 +126,20 @@ stats:
   none: "&7No stats recorded yet."
 
 admin:
+  generate-usage: "&7/duel admin arena generate &f<colosseum|sky|castle|wasteland> [name]"
+  generate-start: "&aBuilding &f{theme} &aas arena &f{name} &a({blocks} blocks) - give it a few seconds..."
+  generate-done: "&aArena &f{name} &ais built and ready! Try &f/duel <player>&a."
+  autosetup-start: "&aCreating the PvP world, hub, 4 arenas and bridges - give it a few seconds..."
+  autosetup-done: "&aDone! &7You are in the hub. Walk the bridges to the arenas, or use &f/duel&7. Players spawn here and return here after every duel. Use &f/duel admin build &7to edit the hub."
+  build-on: "&aBuild mode &lON&a - you can now break and place blocks outside duels."
+  build-off: "&cBuild mode &lOFF&c - the world is protected again."
+  world-created: "&aWorld &f{name} &acreated ({type}). You were teleported there, set it as the lobby, and turned build mode on. Build away!"
+  world-exists: "&cA world with that name already exists."
+  world-bad-name: "&cWorld names may only use a-z, 0-9, _ and - (max 24 characters)."
+  world-not-found: "&cThat world is not loaded."
+  world-teleported: "&aTeleported to &f{name}&a."
+  world-list-entry: "&7- &f{name} &8({type}&8)"
+  world-usage: "&7/duel admin world &f<create|tp|list> [name] [void|flat]"
   arena-created: "&aArena &f{name} &acreated."
   arena-exists: "&cThat arena already exists."
   arena-deleted: "&aArena deleted."
@@ -133,8 +151,8 @@ admin:
   ended: "&aMatch ended."
   arena-list-entry: "&7- &f{name} &8({state}&8)"
   arena-info: "&7{name} &8| &7world &f{world} &8| &7bounds &f{bounds} &8| &7spawns &f{spawns} &8| &7ready &f{ready} &8| &7building &f{building}"
-  usage: "&7/duel admin &f<reload|arena|setlobby|end|resetstats>"
-  arena-usage: "&7/duel admin arena &f<create|quick|delete|pos1|pos2|addspawn|clearspawns|spectator|toggle|building|icon|list|info> [name]"
+  usage: "&7/duel admin &f<reload|autosetup|arena|setlobby|build|world|end|resetstats>"
+  arena-usage: "&7/duel admin arena &f<create|quick|delete|pos1|pos2|addspawn|clearspawns|spectator|toggle|building|icon|list|info|generate> [name]"
 
 scoreboard:
   title: "&6&lDUELFORGE"
@@ -305,5 +323,6 @@ help:
   - "&e/duel ffa &7- free-for-all lobbies, &e/duel start &7to begin yours"
   - "&e/duel spectate [player] &7- watch a match"
   - "&e/duel rematch &7- rematch your last opponent"
+  - "&e/duel lobby &7- go to the lobby"
   - "&e/duel kits &7| &e/duel editkit &7- browse kits / edit your layout"
   - "&e/duelstats [player|top] &7- statistics"

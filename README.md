@@ -33,6 +33,35 @@ Drop the jar into `plugins/`, start the server once, then set up an arena.
 2. `/duel` opens the menu. `/duel <friend>` starts a challenge.
 3. Optional: `/duel admin setlobby` and set `lobby.return-to-lobby: true` in `config.yml`.
 
+## Protected world, build mode and the lobby world
+
+- **World protection** (on by default): nobody can break or place blocks until a duel starts. Inside a running duel,
+  blocks can be broken/placed **only inside the arena**, and everything is restored afterwards.
+  PvP outside matches, hunger and explosion damage are also disabled outside matches (see `world-protection:` in `config.yml`).
+- **Build mode**: `/duel admin build` toggles your personal permission to build outside duels. It resets when you leave.
+- **Custom lobby world**: `/duel admin world create lobby` makes an empty void world with a small platform,
+  teleports you there, sets it as the lobby and turns build mode on, so you can build your spawn.
+  Use `/duel admin world create lobby flat` for a flat world instead. Worlds are remembered in `worlds.yml`.
+  Players then spawn at the lobby on join/respawn and return to it after matches. `/duel lobby` teleports back to it.
+  You can also build in your normal world and just run `/duel admin setlobby`.
+
+## One-command PvP world (hub + 4 maps)
+
+```
+/duel admin autosetup
+```
+Creates a void world called `pvp` and builds, on its own: a quartz **hub** with lamp posts, four ready-made arenas -
+**Colosseum**, **Sky Islands**, **Castle** and **Wasteland** - and **bridges** from the hub to each of them.
+It registers the arenas and sets the hub as the lobby. Players spawn in the hub, can walk anywhere (the bridges lead into
+the arenas), and are returned to the hub after each duel - nobody ever has to leave the world. The arena boundary only
+applies while you are *in a fight*.
+
+Build any single map wherever you stand (the floor is the block under your feet; best done in a void or flat world):
+
+```
+/duel admin arena generate <colosseum|sky|castle|wasteland> [name]
+```
+
 ## Commands
 
 | Command | Description |
@@ -49,7 +78,9 @@ Drop the jar into `plugins/`, start the server once, then set up an arena.
 | `/duelstats [player\|top [wins\|kills\|elo]]` | Statistics |
 | `/duel admin reload` | Reload config, kits, messages |
 | `/duel admin arena <create\|quick\|delete\|pos1\|pos2\|addspawn\|clearspawns\|spectator\|toggle\|building\|icon\|list\|info\|tp> [name]` | Arena management |
-| `/duel admin setlobby`, `end [player]`, `resetstats <player>` | Misc admin |
+| `/duel admin setlobby`, `build`, `world <create\|tp\|list> [name] [void\|flat]`, `end [player]`, `resetstats <player>` | Misc admin |
+| `/duel admin autosetup`, `arena generate <theme> [name]` | Auto-build the PvP world / a single map |
+| `/duel lobby` | Teleport to the lobby |
 
 ## Permissions
 

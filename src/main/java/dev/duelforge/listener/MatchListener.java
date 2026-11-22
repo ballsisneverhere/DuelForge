@@ -108,6 +108,9 @@ public final class MatchListener implements Listener {
         Match vm = fighting(victim);
         if (vm == null) {
             if (am != null) e.setCancelled(true); // can't hit people outside the match
+            else if (attacker != null && attacker != victim && plugin.getConfig().getBoolean("world-protection.disable-pvp", true)) {
+                e.setCancelled(true); // no PvP outside matches
+            }
             return;
         }
         UUID vid = victim.getUniqueId();
@@ -171,7 +174,14 @@ public final class MatchListener implements Listener {
     @EventHandler
     public void onRespawn(PlayerRespawnEvent e) {
         Match m = fighting(e.getPlayer());
-        if (m == null) return;
+        if (m == null) {
+            Location lobby = plugin.lobby();
+            if (lobby != null && plugin.getConfig().getBoolean("lobby.respawn-at-lobby", true)
+                    && !e.isBedSpawn() && !e.isAnchorSpawn()) {
+                e.setRespawnLocation(lobby);
+            }
+            return;
+        }
         e.setRespawnLocation(m.isAlive(e.getPlayer().getUniqueId()) ? m.arena.spawn(0) : m.arena.spectatorSpawn());
     }
 
@@ -190,7 +200,10 @@ public final class MatchListener implements Listener {
     public void onFood(FoodLevelChangeEvent e) {
         if (!(e.getEntity() instanceof Player p)) return;
         Match m = fighting(p);
-        if (m == null) return;
+        if (m == null) {
+            if (plugin.getConfig().getBoolean("lobby.no-hunger", true)) e.setCancelled(true);
+            return;
+        }
         if (!m.kit.hunger || m.state != State.ACTIVE) e.setCancelled(true);
     }
 
@@ -395,7 +408,14 @@ public final class MatchListener implements Listener {
     private void handleBlock(Player p, Block b, BlockState before, Cancellable c) {
         Match m = mm.get(p);
         if (m == null || !m.inArena()) {
-            if (mm.matchAt(b) != null) c.setCancelled(true);
+            if (mm.matchAt(b) != null) {
+                c.setCancelled(true); // someone else's match is using this arena
+                return;
+            }
+            if (worldProtected(p)) {
+                c.setCancelled(true);
+                plugin.messages().actionBar(p, plugin.messages().get("protection.no-build"));
+            }
             return;
         }
         int max = plugin.getConfig().getInt("arena.max-tracked-blocks", 30000);
@@ -404,6 +424,16 @@ public final class MatchListener implements Listener {
             return;
         }
         m.record(before);
+    }
+
+    /** Outside of a running duel, blocks are protected unless the player is in admin build mode. */
+    private boolean worldProtected(Player p) {
+        return plugin.getConfig().getBoolean("world-protection.enabled", true) && !plugin.isBuilder(p.getUniqueId());
+    }
+
+    private boolean explosionsProtected() {
+        return plugin.getConfig().getBoolean("world-protection.enabled", true)
+                && plugin.getConfig().getBoolean("world-protection.explosions", true);
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -464,14 +494,20 @@ public final class MatchListener implements Listener {
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent e) {
         Match m = mm.matchAt(e.getLocation());
-        if (m == null) return;
+        if (m == null) {
+            if (explosionsProtected()) e.blockList().clear();
+            return;
+        }
         filterExplosion(m, e.blockList());
     }
 
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent e) {
         Match m = mm.matchAt(e.getBlock());
-        if (m == null) return;
+        if (m == null) {
+            if (explosionsProtected()) e.blockList().clear();
+            return;
+        }
         filterExplosion(m, e.blockList());
     }
 
@@ -496,13 +532,19 @@ public final class MatchListener implements Listener {
     public void onJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            if (p.isOnline()) mm.restorePending(p);
+            if (!p.isOnline()) return;
+            mm.restorePending(p);
+            Location lobby = plugin.lobby();
+            if (lobby != null && plugin.getConfig().getBoolean("lobby.teleport-on-join", true) && !mm.inMatch(p.getUniqueId())) {
+                p.teleport(lobby);
+            }
         }, 3L);
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
         warned.remove(e.getPlayer().getUniqueId());
+        plugin.removeBuilder(e.getPlayer().getUniqueId());
         mm.onQuit(e.getPlayer());
     }
 }

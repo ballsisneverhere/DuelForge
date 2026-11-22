@@ -2,6 +2,7 @@ package dev.duelforge.command;
 
 import dev.duelforge.DuelForge;
 import dev.duelforge.arena.Arena;
+import dev.duelforge.arena.ArenaBuilder;
 import dev.duelforge.kit.Kit;
 import dev.duelforge.match.Match;
 import dev.duelforge.stats.StatsManager.PlayerStats;
@@ -23,10 +24,11 @@ import java.util.Locale;
 /** Handles /duel, /accept, /deny and /duelstats. */
 public final class DuelCommand implements CommandExecutor, TabCompleter {
     private static final List<String> SUBS = List.of("accept", "deny", "leave", "stats", "top", "kits", "kit", "editkit",
-            "spectate", "ffa", "join", "start", "rematch", "invites", "menu", "help", "admin");
-    private static final List<String> ADMIN = List.of("reload", "arena", "setlobby", "end", "resetstats");
+            "spectate", "ffa", "join", "start", "rematch", "invites", "menu", "lobby", "help", "admin");
+    private static final List<String> ADMIN = List.of("reload", "arena", "setlobby", "build", "world", "autosetup", "end", "resetstats");
+    private static final List<String> WORLD = List.of("create", "tp", "list");
     private static final List<String> ARENA = List.of("create", "quick", "delete", "pos1", "pos2", "addspawn", "clearspawns",
-            "spectator", "toggle", "building", "icon", "list", "info", "tp");
+            "spectator", "toggle", "building", "icon", "list", "info", "tp", "generate");
 
     private final DuelForge plugin;
 
@@ -121,6 +123,13 @@ public final class DuelCommand implements CommandExecutor, TabCompleter {
             case "rematch" -> {
                 if (p.hasPermission("duelforge.duel")) mm.rematch(p);
                 else plugin.messages().send(p, "no-permission");
+            }
+            case "lobby", "spawn", "hub" -> {
+                if (mm.inMatch(p.getUniqueId())) {
+                    plugin.messages().send(p, "already-in-match");
+                } else if (plugin.lobby() == null) {
+                    plugin.messages().send(p, "lobby-not-set");
+                } else p.teleport(plugin.lobby());
             }
             case "invites" -> gui.invites(p);
             case "menu" -> gui.hub(p);
@@ -273,7 +282,149 @@ public final class DuelCommand implements CommandExecutor, TabCompleter {
                 plugin.messages().send(s, "stats.reset", "player", st.name);
             }
             case "arena" -> adminArena(s, a);
+            case "build" -> {
+                if (s instanceof Player p) {
+                    boolean on = plugin.toggleBuilder(p.getUniqueId());
+                    plugin.messages().send(s, on ? "admin.build-on" : "admin.build-off");
+                } else plugin.messages().send(s, "player-only");
+            }
+            case "world" -> adminWorld(s, a);
+            case "autosetup" -> autosetup(s, a);
             default -> plugin.messages().send(s, "admin.usage");
+        }
+    }
+
+    /** /duel admin arena generate <theme> [name] - builds a finished map at your feet. */
+    private void generate(CommandSender s, String[] a) {
+        var ms = plugin.messages();
+        if (!(s instanceof Player p)) {
+            ms.send(s, "player-only");
+            return;
+        }
+        ArenaBuilder.Theme theme = a.length > 3 ? ArenaBuilder.Theme.parse(a[3]) : null;
+        if (theme == null) {
+            ms.send(s, "admin.generate-usage");
+            return;
+        }
+        String name = (a.length > 4 ? a[4] : a[3]).toLowerCase(Locale.ROOT);
+        if (!name.matches("[a-z0-9_\\-]{1,24}")) {
+            ms.send(s, "arena-not-found");
+            return;
+        }
+        Arena existing = plugin.arenas().get(name);
+        if (existing != null && existing.current != null) {
+            ms.send(s, "admin.arena-in-use");
+            return;
+        }
+        var w = p.getWorld();
+        boolean clear = !(w.getGenerator() instanceof DuelForge.VoidGenerator);
+        Location l = p.getLocation();
+        ArenaBuilder.Plan plan = ArenaBuilder.plan(theme, l.getBlockX(), l.getBlockY() - 1, l.getBlockZ(), clear);
+        ArenaBuilder.register(plugin.arenas(), name, w, plan);
+        ms.send(s, "admin.generate-start", "theme", theme.name().toLowerCase(Locale.ROOT), "name", name, "blocks", plan.ops.size());
+        ArenaBuilder.apply(plugin, w, plan.ops, () -> {
+            plugin.arenas().save(true);
+            ms.send(p, "admin.generate-done", "name", name);
+        });
+    }
+
+    /** /duel admin autosetup [world] - void world + hub + 4 arenas + bridges, all in one go. */
+    private void autosetup(CommandSender s, String[] a) {
+        var ms = plugin.messages();
+        if (!(s instanceof Player p)) {
+            ms.send(s, "player-only");
+            return;
+        }
+        String worldName = (a.length > 2 ? a[2] : "pvp").toLowerCase(Locale.ROOT);
+        if (!worldName.matches("[a-z0-9_\\-]{1,24}")) {
+            ms.send(s, "admin.world-bad-name");
+            return;
+        }
+        if (plugin.worldNameTaken(worldName)) {
+            ms.send(s, "admin.world-exists");
+            return;
+        }
+        for (ArenaBuilder.Theme t : ArenaBuilder.Theme.values()) {
+            Arena ex = plugin.arenas().get(t.name().toLowerCase(Locale.ROOT));
+            if (ex != null && ex.current != null) {
+                ms.send(s, "admin.arena-in-use");
+                return;
+            }
+        }
+        ms.send(s, "admin.autosetup-start");
+        Location spawn = plugin.createWorld(worldName, "void"); // void world with a platform at y=64
+        var w = spawn.getWorld();
+        final int y0 = 64, d = ArenaBuilder.ARENA_DISTANCE;
+        ArenaBuilder.Plan hub = ArenaBuilder.hub(0, y0, 0, false);
+        List<ArenaBuilder.Op> ops = new ArrayList<>(hub.ops);
+        Object[][] layout = {
+                {ArenaBuilder.Theme.COLOSSEUM, d, 0},
+                {ArenaBuilder.Theme.SKY, 0, -d},
+                {ArenaBuilder.Theme.CASTLE, -d, 0},
+                {ArenaBuilder.Theme.WASTELAND, 0, d}};
+        for (Object[] e : layout) {
+            ArenaBuilder.Theme t = (ArenaBuilder.Theme) e[0];
+            ArenaBuilder.Plan plan = ArenaBuilder.plan(t, (Integer) e[1], y0, (Integer) e[2], false);
+            ArenaBuilder.register(plugin.arenas(), t.name().toLowerCase(Locale.ROOT), w, plan);
+            ops.addAll(plan.ops);
+        }
+        ops.addAll(ArenaBuilder.bridges(y0));
+        Location lobby = new Location(w, 0.5, y0 + 1, 0.5, 0f, 0f);
+        plugin.setLobby(lobby);
+        p.teleport(lobby);
+        ArenaBuilder.apply(plugin, w, ops, () -> {
+            plugin.arenas().save(true);
+            ms.send(p, "admin.autosetup-done");
+        });
+    }
+
+    private void adminWorld(CommandSender s, String[] a) {
+        var ms = plugin.messages();
+        if (a.length < 3) {
+            ms.send(s, "admin.world-usage");
+            return;
+        }
+        switch (a[2].toLowerCase(Locale.ROOT)) {
+            case "list" -> {
+                for (var e : plugin.customWorlds().entrySet()) {
+                    s.sendMessage(ms.get("admin.world-list-entry", "name", e.getKey(), "type", e.getValue()));
+                }
+            }
+            case "tp" -> {
+                if (!(s instanceof Player p)) {
+                    ms.send(s, "player-only");
+                    return;
+                }
+                var w = a.length > 3 ? Bukkit.getWorld(a[3]) : null;
+                if (w == null) {
+                    ms.send(s, "admin.world-not-found");
+                    return;
+                }
+                p.teleport(w.getSpawnLocation());
+                ms.send(s, "admin.world-teleported", "name", w.getName());
+            }
+            case "create" -> {
+                if (!(s instanceof Player p)) {
+                    ms.send(s, "player-only");
+                    return;
+                }
+                if (a.length < 4 || !a[3].matches("[a-z0-9_\\-]{1,24}")) {
+                    ms.send(s, "admin.world-bad-name");
+                    return;
+                }
+                String name = a[3];
+                String type = a.length > 4 && a[4].equalsIgnoreCase("flat") ? "flat" : "void";
+                if (plugin.worldNameTaken(name)) {
+                    ms.send(s, "admin.world-exists");
+                    return;
+                }
+                Location spawn = plugin.createWorld(name, type);
+                p.teleport(spawn);
+                plugin.setLobby(spawn);
+                if (!plugin.isBuilder(p.getUniqueId())) plugin.toggleBuilder(p.getUniqueId());
+                ms.send(s, "admin.world-created", "name", name, "type", type);
+            }
+            default -> ms.send(s, "admin.world-usage");
         }
     }
 
@@ -290,6 +441,10 @@ public final class DuelCommand implements CommandExecutor, TabCompleter {
                 s.sendMessage(ms.get("admin.arena-list-entry", "name", ar.name,
                         "state", ar.ready() ? (ar.current == null ? "&aready" : "&ein use") : "&cnot ready"));
             }
+            return;
+        }
+        if (sub.equals("generate")) {
+            generate(s, a);
             return;
         }
         if (a.length < 4) {
@@ -482,6 +637,11 @@ public final class DuelCommand implements CommandExecutor, TabCompleter {
     private void adminTab(String[] args, List<String> out) {
         if (args.length == 2) out.addAll(ADMIN);
         else if (args.length == 3 && args[1].equalsIgnoreCase("arena")) out.addAll(ARENA);
+        else if (args.length == 3 && args[1].equalsIgnoreCase("world")) out.addAll(WORLD);
+        else if (args.length == 4 && args[1].equalsIgnoreCase("world") && args[2].equalsIgnoreCase("create")) out.addAll(List.of("void", "flat"));
+        else if (args.length == 4 && args[1].equalsIgnoreCase("arena") && args[2].equalsIgnoreCase("generate")) {
+            for (ArenaBuilder.Theme t : ArenaBuilder.Theme.values()) out.add(t.name().toLowerCase(Locale.ROOT));
+        }
         else if (args.length == 4 && args[1].equalsIgnoreCase("arena")) for (Arena a : plugin.arenas().all()) out.add(a.name);
         else if (args.length == 3 && (args[1].equalsIgnoreCase("end") || args[1].equalsIgnoreCase("resetstats"))) players(out, args[2]);
     }

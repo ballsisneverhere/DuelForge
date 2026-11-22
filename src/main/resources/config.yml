@@ -3,8 +3,17 @@
 # ============================================================
 
 lobby:
-  # set the lobby with /duel admin setlobby
-  return-to-lobby: false  # false = players return to where they were before the match
+  # set the lobby with /duel admin setlobby (or /duel admin world create <name>)
+  return-to-lobby: true   # true = go to the lobby after a match, false = back to where they were
+  teleport-on-join: true  # send players to the lobby when they join the server
+  respawn-at-lobby: true  # respawn at the lobby after dying outside a match
+  no-hunger: true         # no hunger loss outside matches
+
+world-protection:
+  enabled: true           # nobody can break/place blocks outside a duel (only inside arenas during a match)
+  disable-pvp: true       # players can only hurt each other inside matches
+  explosions: true        # explosions don't destroy blocks outside matches
+  # Admins build with:  /duel admin build   (toggles build mode)
 
 duel:
   request-timeout: 30     # seconds before a duel request expires

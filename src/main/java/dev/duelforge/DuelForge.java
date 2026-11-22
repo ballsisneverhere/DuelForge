@@ -10,14 +10,26 @@ import dev.duelforge.match.MatchManager;
 import dev.duelforge.stats.StatsManager;
 import dev.duelforge.ui.ScoreboardService;
 import org.bukkit.Bukkit;
+import org.bukkit.GameRule;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.World;
+import org.bukkit.WorldCreator;
+import org.bukkit.WorldType;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 
 /** DuelForge: kit-based PvP duels, FFA, ranked, spectating and a full GUI. */
@@ -32,6 +44,16 @@ public final class DuelForge extends JavaPlugin {
     private ScoreboardService boards;
     private MatchManager matches;
     private GuiManager gui;
+    private final Set<UUID> builders = new HashSet<>();
+    private final Map<String, String> customWorlds = new LinkedHashMap<>();
+
+    /** Generates a completely empty (void) world. */
+    public static final class VoidGenerator extends ChunkGenerator {
+        @Override
+        public Location getFixedSpawnLocation(World world, Random random) {
+            return new Location(world, 0.5, 65, 0.5);
+        }
+    }
 
     @Override
     public void onEnable() {
@@ -40,6 +62,7 @@ public final class DuelForge extends JavaPlugin {
             if (!new File(getDataFolder(), f).exists()) saveResource(f, false);
         }
         abilityKey = new NamespacedKey(this, "ability");
+        loadCustomWorlds();
 
         messages = new Messages(this);
         messages.load();
@@ -113,6 +136,80 @@ public final class DuelForge extends JavaPlugin {
         YamlConfiguration c = new YamlConfiguration();
         c.set("location", l.getWorld().getName() + "," + l.getX() + "," + l.getY() + "," + l.getZ() + "," + l.getYaw() + "," + l.getPitch());
         dev.duelforge.util.Persist.save(this, new File(getDataFolder(), "lobby.yml"), c, false);
+        l.getWorld().setSpawnLocation(l);
+    }
+
+    // ---- build mode (lets admins edit the protected world) ----
+
+    public boolean isBuilder(UUID id) {
+        return builders.contains(id);
+    }
+
+    /** Toggles build mode; returns the new state. */
+    public boolean toggleBuilder(UUID id) {
+        if (builders.remove(id)) return false;
+        builders.add(id);
+        return true;
+    }
+
+    public void removeBuilder(UUID id) {
+        builders.remove(id);
+    }
+
+    // ---- custom worlds (void / flat) created with /duel admin world create ----
+
+    private File worldsFile() {
+        return new File(getDataFolder(), "worlds.yml");
+    }
+
+    private void loadCustomWorlds() {
+        ConfigurationSection s = YamlConfiguration.loadConfiguration(worldsFile()).getConfigurationSection("worlds");
+        if (s == null) return;
+        for (String name : s.getKeys(false)) {
+            String type = s.getString(name, "void");
+            customWorlds.put(name, type);
+            try {
+                buildWorld(name, type);
+            } catch (Exception ex) {
+                getLogger().warning("Could not load world '" + name + "': " + ex.getMessage());
+            }
+        }
+    }
+
+    private World buildWorld(String name, String type) {
+        World existing = Bukkit.getWorld(name);
+        if (existing != null) return existing;
+        WorldCreator wc = new WorldCreator(name).generateStructures(false);
+        if (type.equals("flat")) wc.type(WorldType.FLAT);
+        else wc.generator(new VoidGenerator());
+        World w = wc.createWorld();
+        if (w == null) throw new IllegalStateException("world creation failed");
+        w.setGameRule(GameRule.DO_MOB_SPAWNING, false);
+        w.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+        w.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
+        w.setTime(6000);
+        w.setStorm(false);
+        return w;
+    }
+
+    public Map<String, String> customWorlds() {
+        return customWorlds;
+    }
+
+    public boolean worldNameTaken(String name) {
+        return Bukkit.getWorld(name) != null || new File(Bukkit.getWorldContainer(), name).exists();
+    }
+
+    /** Creates a new build world and returns its spawn point. */
+    public Location createWorld(String name, String type) {
+        World w = buildWorld(name, type);
+        customWorlds.put(name, type);
+        YamlConfiguration c = new YamlConfiguration();
+        for (Map.Entry<String, String> e : customWorlds.entrySet()) c.set("worlds." + e.getKey(), e.getValue());
+        dev.duelforge.util.Persist.save(this, worldsFile(), c, false);
+        if (type.equals("flat")) return w.getSpawnLocation().add(0.5, 0, 0.5);
+        for (int x = -4; x <= 4; x++) for (int z = -4; z <= 4; z++) w.getBlockAt(x, 64, z).setType(Material.SMOOTH_STONE);
+        return new Location(w, 0.5, 65, 0.5);
     }
 
     public Messages messages() { return messages; }
