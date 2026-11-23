@@ -3,8 +3,10 @@ package dev.duelforge.match;
 import dev.duelforge.DuelForge;
 import dev.duelforge.Messages;
 import dev.duelforge.arena.Arena;
+import dev.duelforge.arena.ArenaBuilder;
 import dev.duelforge.kit.Kit;
 import dev.duelforge.match.Match.State;
+import dev.duelforge.party.PartyManager.Party;
 import dev.duelforge.stats.StatsManager.PlayerStats;
 import dev.duelforge.util.Fmt;
 import dev.duelforge.util.Fx;
@@ -21,6 +23,7 @@ import org.bukkit.util.Vector;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,16 +41,19 @@ public final class MatchManager {
     public static final class DuelRequest {
         public final UUID from, to;
         public final Kit kit;
-        public final Arena arena; // null = random
+        public final Arena arena; // null = auto-built random map
         public final boolean ranked;
+        public final int bestOf, teamSize;
         public final long expires;
 
-        DuelRequest(UUID from, UUID to, Kit kit, Arena arena, boolean ranked, long expires) {
+        DuelRequest(UUID from, UUID to, Kit kit, Arena arena, boolean ranked, int bestOf, int teamSize, long expires) {
             this.from = from;
             this.to = to;
             this.kit = kit;
             this.arena = arena;
             this.ranked = ranked;
+            this.bestOf = bestOf;
+            this.teamSize = teamSize;
             this.expires = expires;
         }
     }
@@ -56,13 +62,15 @@ public final class MatchManager {
         final UUID opponent;
         final String kit, arena;
         final boolean ranked;
+        final int bestOf;
         final long expires;
 
-        LastMatch(UUID opponent, String kit, String arena, boolean ranked, long expires) {
+        LastMatch(UUID opponent, String kit, String arena, boolean ranked, int bestOf, long expires) {
             this.opponent = opponent;
             this.kit = kit;
             this.arena = arena;
             this.ranked = ranked;
+            this.bestOf = bestOf;
             this.expires = expires;
         }
     }
@@ -97,7 +105,7 @@ public final class MatchManager {
         task = Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 20L, 20L);
     }
 
-    /** Ends every match immediately: restores players and arenas synchronously. */
+    /** Ends every match immediately: restores players and static arenas synchronously. */
     public void shutdown() {
         if (task != null) task.cancel();
         for (Match m : new ArrayList<>(matches.values())) {
@@ -107,7 +115,7 @@ public final class MatchManager {
                 if (p != null) restore(p, m);
                 else byPlayer.remove(id);
             }
-            plugin.arenas().restoreNow(m);
+            if (m.arena != null && !m.arena.temporary) plugin.arenas().restoreNow(m);
         }
         matches.clear();
         byPlayer.clear();
@@ -126,7 +134,11 @@ public final class MatchManager {
             if (list.isEmpty()) it.remove();
         }
         lastMatches.values().removeIf(l -> l.expires < now);
-
+        try {
+            plugin.queue().tick();
+        } catch (Exception ex) {
+            plugin.getLogger().warning("Queue error: " + ex);
+        }
         for (Match m : new ArrayList<>(matches.values())) {
             try {
                 tickMatch(m, now);
@@ -139,10 +151,12 @@ public final class MatchManager {
     private void tickMatch(Match m, long now) {
         switch (m.state) {
             case LOBBY -> tickLobby(m);
+            case BUILDING -> { }
             case COUNTDOWN -> {
                 if (m.countdown > 0) {
                     for (Player p : m.viewers()) {
-                        p.sendTitle(msg().get("title.countdown", "seconds", m.countdown), "", 0, 25, 5);
+                        String sub = m.bestOf > 1 ? msg().get("title.round", "round", m.round) : "";
+                        p.sendTitle(msg().get("title.countdown", "seconds", m.countdown), sub, 0, 25, 5);
                         Fx.sound(p, cfg().getString("sounds.countdown", ""), 1f, 1f);
                     }
                     m.countdown--;
@@ -156,10 +170,11 @@ public final class MatchManager {
                 }
             }
             case ACTIVE -> {
-                if (m.timeLimit > 0 && (now - m.startMillis) / 1000 >= m.timeLimit) {
-                    m.broadcast(msg().prefixed("match.timeout"));
-                    end(m, topKiller(m), true);
-                }
+                if (m.timeLimit > 0 && (now - m.startMillis) / 1000 >= m.timeLimit) timeout(m);
+            }
+            case BETWEEN -> {
+                m.endTimer--;
+                if (m.endTimer <= 0) startRound(m);
             }
             case ENDING -> {
                 m.endTimer--;
@@ -171,7 +186,7 @@ public final class MatchManager {
 
     private void tickLobby(Match m) {
         if (m.players.size() >= m.maxPlayers) {
-            begin(m);
+            startMatch(m);
             return;
         }
         if (m.players.size() >= m.minPlayers) {
@@ -180,7 +195,7 @@ public final class MatchManager {
             } else {
                 m.lobbyTimer--;
                 if (m.lobbyTimer <= 0) {
-                    begin(m);
+                    startMatch(m);
                 } else if (m.lobbyTimer <= 5 || m.lobbyTimer == 10 || m.lobbyTimer == 20) {
                     for (UUID u : m.players) {
                         Player p = Bukkit.getPlayer(u);
@@ -193,7 +208,7 @@ public final class MatchManager {
         }
     }
 
-    private UUID topKiller(Match m) {
+    private Set<UUID> topKillers(Match m) {
         UUID best = null;
         int bestKills = -1;
         boolean tie = false;
@@ -207,7 +222,9 @@ public final class MatchManager {
                 tie = true;
             }
         }
-        return tie ? null : best;
+        Set<UUID> out = new HashSet<>();
+        if (best != null && !tie) out.add(best);
+        return out;
     }
 
     // =====================================================================
@@ -226,7 +243,7 @@ public final class MatchManager {
         return byPlayer.containsKey(id);
     }
 
-    public java.util.Collection<Match> all() {
+    public Collection<Match> all() {
         return matches.values();
     }
 
@@ -238,7 +255,7 @@ public final class MatchManager {
 
     public List<Match> spectatable() {
         List<Match> out = new ArrayList<>();
-        for (Match m : matches.values()) if (m.state != State.LOBBY) out.add(m);
+        for (Match m : matches.values()) if (m.inArena()) out.add(m);
         return out;
     }
 
@@ -283,8 +300,34 @@ public final class MatchManager {
         return n == null ? "Unknown" : n;
     }
 
+    private String names(Collection<UUID> ids) {
+        List<String> out = new ArrayList<>();
+        for (UUID u : ids) out.add(nameOf(u));
+        return String.join(", ", out);
+    }
+
     public String modeName(boolean ranked) {
         return msg().get(ranked ? "request.ranked" : "request.unranked");
+    }
+
+    private String describe(int teamSize, boolean ranked, int bestOf) {
+        String s = (teamSize > 1 ? teamSize + "v" + teamSize + " " : "") + modeName(ranked);
+        if (bestOf > 1) s += " &8| &7Bo" + bestOf;
+        return Fmt.color(s);
+    }
+
+    public String describe(DuelRequest r) {
+        return describe(r.teamSize, r.ranked, r.bestOf);
+    }
+
+    private ArenaBuilder.Theme pickTheme() {
+        List<ArenaBuilder.Theme> pool = new ArrayList<>();
+        for (String s : cfg().getStringList("matches.themes")) {
+            ArenaBuilder.Theme t = ArenaBuilder.Theme.parse(s);
+            if (t != null) pool.add(t);
+        }
+        if (pool.isEmpty()) Collections.addAll(pool, ArenaBuilder.Theme.values());
+        return pool.get(random.nextInt(pool.size()));
     }
 
     // =====================================================================
@@ -292,6 +335,10 @@ public final class MatchManager {
     // =====================================================================
 
     public void sendRequest(Player from, Player to, Kit kit, Arena arena, boolean ranked) {
+        sendRequest(from, to, kit, arena, ranked, Math.max(1, cfg().getInt("duel.best-of", 3)));
+    }
+
+    public void sendRequest(Player from, Player to, Kit kit, Arena arena, boolean ranked, int bestOf) {
         if (from.equals(to)) {
             msg().send(from, "cannot-duel-self");
             return;
@@ -316,13 +363,42 @@ public final class MatchManager {
             msg().send(from, "ranked-disabled");
             return;
         }
-        if (plugin.arenas().ready().isEmpty()) {
+        if (arena == null && !plugin.instances().enabled() && plugin.arenas().ready().isEmpty()) {
             msg().send(from, "no-arenas-configured");
             return;
         }
         if (arena != null && !arena.free()) {
             msg().send(from, "arena-busy");
             return;
+        }
+        // parties: 2v2 / 3v3 between two party leaders
+        int teamSize = 1;
+        Party fp = plugin.parties().of(from.getUniqueId());
+        Party tp = plugin.parties().of(to.getUniqueId());
+        boolean fromTeam = fp != null && fp.members.size() > 1;
+        boolean toTeam = tp != null && tp.members.size() > 1;
+        if (fromTeam || toTeam) {
+            if (!fromTeam || !toTeam) {
+                msg().send(from, "party.need-both");
+                return;
+            }
+            if (!fp.leader.equals(from.getUniqueId()) || !tp.leader.equals(to.getUniqueId())) {
+                msg().send(from, "party.leaders-only");
+                return;
+            }
+            if (fp == tp) {
+                msg().send(from, "cannot-duel-self");
+                return;
+            }
+            if (fp.members.size() != tp.members.size()) {
+                msg().send(from, "party.size-mismatch");
+                return;
+            }
+            if (ranked) {
+                msg().send(from, "party.no-ranked");
+                return;
+            }
+            teamSize = fp.members.size();
         }
         // If the target already challenged us, accept their request instead.
         DuelRequest rev = find(from.getUniqueId(), to.getUniqueId());
@@ -333,9 +409,10 @@ public final class MatchManager {
         List<DuelRequest> list = requests.computeIfAbsent(to.getUniqueId(), k -> new ArrayList<>());
         list.removeIf(r -> r.from.equals(from.getUniqueId()));
         long timeout = cfg().getLong("duel.request-timeout", 30) * 1000L;
-        list.add(new DuelRequest(from.getUniqueId(), to.getUniqueId(), kit, arena, ranked, System.currentTimeMillis() + timeout));
+        DuelRequest req = new DuelRequest(from.getUniqueId(), to.getUniqueId(), kit, arena, ranked, bestOf, teamSize, System.currentTimeMillis() + timeout);
+        list.add(req);
 
-        String mode = modeName(ranked);
+        String mode = describe(req);
         msg().send(from, "request.sent", "player", to.getName(), "kit", Fmt.color(kit.displayName), "mode", mode);
         String arenaName = arena == null ? msg().get("request.random-arena") : Fmt.color(arena.displayName);
         msg().sendButtons(to,
@@ -374,32 +451,20 @@ public final class MatchManager {
             msg().send(target, "request.player-offline");
             return;
         }
-        if (inMatch(target.getUniqueId())) {
-            msg().send(target, "already-in-match");
-            return;
+        List<UUID> a = new ArrayList<>(), b = new ArrayList<>();
+        if (req.teamSize > 1) {
+            Party fp = plugin.parties().of(req.from), tp = plugin.parties().of(req.to);
+            if (fp == null || tp == null || fp.members.size() != req.teamSize || tp.members.size() != req.teamSize) {
+                msg().send(target, "party.size-mismatch");
+                return;
+            }
+            a.addAll(fp.members);
+            b.addAll(tp.members);
+        } else {
+            a.add(req.from);
+            b.add(req.to);
         }
-        if (inMatch(sender.getUniqueId())) {
-            msg().send(target, "target-in-match", "player", sender.getName());
-            return;
-        }
-        Arena arena = req.arena != null ? req.arena : plugin.arenas().randomFree();
-        if (arena == null || !arena.free()) {
-            msg().send(target, "no-arena");
-            msg().send(sender, "no-arena");
-            return;
-        }
-        Match m = new Match(nextId++, arena, req.kit, req.ranked, false, sender.getUniqueId());
-        m.maxPlayers = 2;
-        m.minPlayers = 2;
-        m.lives = Math.max(1, cfg().getInt("duel.lives", 1));
-        m.timeLimit = cfg().getInt("duel.time-limit", 600);
-        arena.current = m;
-        matches.put(m.id, m);
-        for (Player p : new Player[]{sender, target}) {
-            m.players.add(p.getUniqueId());
-            byPlayer.put(p.getUniqueId(), m);
-        }
-        begin(m);
+        createMatch(List.of(a, b), req.kit, req.arena, req.ranked, req.bestOf);
     }
 
     public void deny(Player target, String senderName) {
@@ -428,7 +493,100 @@ public final class MatchManager {
         }
         Arena arena = plugin.arenas().get(lm.arena);
         if (arena != null && !arena.free()) arena = null;
-        sendRequest(p, opp, plugin.kits().get(lm.kit), arena, lm.ranked);
+        sendRequest(p, opp, plugin.kits().get(lm.kit), arena, lm.ranked, lm.bestOf);
+    }
+
+    // =====================================================================
+    // creating matches (duels, queue matches, party duels)
+    // =====================================================================
+
+    /** Sets up a team match. Each inner list is one team. The map is built automatically when {@code arena} is null. */
+    public boolean createMatch(List<List<UUID>> teams, Kit kit, Arena arena, boolean ranked, int bestOf) {
+        List<UUID> all = new ArrayList<>();
+        for (List<UUID> t : teams) all.addAll(t);
+        for (UUID u : all) {
+            if (Bukkit.getPlayer(u) == null || inMatch(u)) {
+                for (UUID o : all) {
+                    Player op = Bukkit.getPlayer(o);
+                    if (op != null && !inMatch(o)) msg().send(op, "match.cancelled");
+                }
+                return false;
+            }
+        }
+        boolean auto = arena == null && plugin.instances().enabled();
+        if (arena != null && !arena.free()) {
+            for (UUID o : all) msg().send(Bukkit.getPlayer(o), "arena-busy");
+            return false;
+        }
+        if (arena == null && !auto) {
+            arena = plugin.arenas().randomFree();
+            if (arena == null) {
+                for (UUID o : all) msg().send(Bukkit.getPlayer(o), "no-arena");
+                return false;
+            }
+        }
+        for (UUID u : all) plugin.queue().remove(u);
+
+        Match m = new Match(nextId++, kit, ranked, false, all.get(0));
+        m.teamSize = teams.get(0).size();
+        m.teamCount = teams.size();
+        m.maxPlayers = all.size();
+        m.minPlayers = all.size();
+        m.bestOf = bestOf % 2 == 0 ? bestOf + 1 : Math.max(1, bestOf);
+        m.lives = Math.max(1, cfg().getInt("duel.lives", 1));
+        m.timeLimit = cfg().getInt("duel.time-limit", 600);
+        for (int t = 0; t < teams.size(); t++) {
+            for (UUID u : teams.get(t)) {
+                m.players.add(u);
+                m.team.put(u, t);
+                byPlayer.put(u, m);
+            }
+        }
+        matches.put(m.id, m);
+        if (arena != null) {
+            m.arena = arena;
+            arena.current = m;
+        }
+        startMatch(m);
+        return true;
+    }
+
+    /** Either begins right away (map exists) or builds a fresh map first. */
+    private void startMatch(Match m) {
+        if (m.arena != null) {
+            begin(m);
+            return;
+        }
+        m.state = State.BUILDING;
+        for (Player p : m.viewers()) msg().send(p, "match.building");
+        plugin.instances().acquire(pickTheme(), arena -> {
+            if (!matches.containsKey(m.id) || m.cancelled) {
+                plugin.instances().release(arena, null);
+                return;
+            }
+            m.arena = arena;
+            arena.current = m;
+            begin(m);
+        }, () -> {
+            if (!matches.containsKey(m.id) || m.cancelled) return;
+            Arena fb = plugin.arenas().randomFree();
+            if (fb != null) {
+                m.arena = fb;
+                fb.current = m;
+                begin(m);
+            } else {
+                for (Player p : m.viewers()) msg().send(p, "no-arena");
+                dismantle(m);
+            }
+        });
+    }
+
+    /** Removes a match that never started, without touching anyone's inventory. */
+    private void dismantle(Match m) {
+        for (UUID u : new ArrayList<>(m.players)) byPlayer.remove(u);
+        matches.remove(m.id);
+        m.cancelled = true;
+        if (m.arena != null && !m.arena.temporary) m.arena.current = null;
     }
 
     // =====================================================================
@@ -448,27 +606,38 @@ public final class MatchManager {
             msg().send(host, "kit-locked");
             return;
         }
-        if (plugin.arenas().ready().isEmpty()) {
-            msg().send(host, "no-arenas-configured");
+        boolean auto = arena == null && plugin.instances().enabled();
+        if (!auto) {
+            if (plugin.arenas().ready().isEmpty()) {
+                msg().send(host, "no-arenas-configured");
+                return;
+            }
+            if (arena == null) arena = plugin.arenas().randomFree();
+            if (arena == null || !arena.free()) {
+                msg().send(host, arena == null ? "no-arena" : "arena-busy");
+                return;
+            }
+        } else if (plugin.parties().of(host.getUniqueId()) != null && plugin.parties().of(host.getUniqueId()).members.size() > 1) {
+            msg().send(host, "party.ffa-solo");
             return;
         }
-        if (arena == null) arena = plugin.arenas().randomFree();
-        if (arena == null || !arena.free()) {
-            msg().send(host, arena == null ? "no-arena" : "arena-busy");
-            return;
-        }
-        Match m = new Match(nextId++, arena, kit, false, true, host.getUniqueId());
-        m.maxPlayers = Math.max(2, Math.min(cfg().getInt("ffa.max-players", 16), arena.spawns.size()));
+        Match m = new Match(nextId++, kit, false, true, host.getUniqueId());
+        int spawns = arena != null ? arena.spawns.size() : 12;
+        m.maxPlayers = Math.max(2, Math.min(cfg().getInt("ffa.max-players", 16), spawns));
         m.minPlayers = Math.max(2, cfg().getInt("ffa.min-players", 2));
         m.lives = Math.max(1, cfg().getInt("ffa.lives", 3));
         m.timeLimit = cfg().getInt("ffa.time-limit", 900);
-        arena.current = m;
+        if (arena != null) {
+            m.arena = arena;
+            arena.current = m;
+        }
         matches.put(m.id, m);
         m.players.add(host.getUniqueId());
         byPlayer.put(host.getUniqueId(), m);
+        plugin.queue().remove(host.getUniqueId());
         msg().send(host, "ffa.created");
         if (cfg().getBoolean("ffa.broadcast-lobby", true)) {
-            String line = msg().prefixed("ffa.announce", "player", host.getName(), "kit", Fmt.color(kit.displayName), "arena", Fmt.color(arena.displayName));
+            String line = msg().prefixed("ffa.announce", "player", host.getName(), "kit", Fmt.color(kit.displayName), "arena", m.arenaName());
             for (Player p : Bukkit.getOnlinePlayers()) {
                 if (p.equals(host) || inMatch(p.getUniqueId())) continue;
                 msg().sendButtons(p, line, new String[]{msg().get("ffa.join-button"), "/duel join " + host.getName(), msg().get("ffa.join-hover")});
@@ -493,6 +662,7 @@ public final class MatchManager {
             msg().send(p, "kit-locked");
             return;
         }
+        plugin.queue().remove(p.getUniqueId());
         m.players.add(p.getUniqueId());
         byPlayer.put(p.getUniqueId(), m);
         msg().send(p, "ffa.joined", "host", nameOf(m.host), "count", m.players.size(), "max", m.maxPlayers);
@@ -516,7 +686,7 @@ public final class MatchManager {
             msg().send(by, "ffa.not-enough", "min", m.minPlayers);
             return;
         }
-        begin(m);
+        startMatch(m);
     }
 
     private void cancelLobby(Match m) {
@@ -526,23 +696,36 @@ public final class MatchManager {
             if (p != null) msg().send(p, "ffa.cancelled");
         }
         matches.remove(m.id);
-        m.arena.current = null;
+        if (m.arena != null && !m.arena.temporary) m.arena.current = null;
     }
 
     // =====================================================================
-    // starting a match
+    // starting
     // =====================================================================
 
     private void begin(Match m) {
         m.state = State.COUNTDOWN;
         m.countdown = Math.max(1, cfg().getInt(m.ffa ? "ffa.countdown" : "duel.countdown", 5));
+        m.round = 1;
         List<UUID> order = new ArrayList<>(m.players);
-        if (m.ffa) Collections.shuffle(order, random);
-        int i = 0;
+        if (m.ffa) {
+            Collections.shuffle(order, random);
+            int i = 0;
+            for (UUID id : order) m.spawnSlot.put(id, i++);
+        } else {
+            for (int t = 0; t < m.teamCount; t++) {
+                int k = 0;
+                for (UUID u : m.members(t)) {
+                    m.spawnSlot.put(u, 2 * k + t);
+                    k++;
+                }
+            }
+        }
         for (UUID id : order) {
             Player p = Bukkit.getPlayer(id);
             if (p == null) {
                 m.players.remove(id);
+                m.team.remove(id);
                 byPlayer.remove(id);
                 continue;
             }
@@ -553,14 +736,15 @@ public final class MatchManager {
             m.kills.put(id, 0);
             m.deaths.put(id, 0);
             plugin.abilities().clear(id);
+            plugin.queue().remove(id);
             p.closeInventory();
             prepare(p, m);
-            tp(p, m.arena.spawn(i++));
+            tp(p, m.arena.spawn(m.spawnSlot.getOrDefault(id, 0)));
             p.sendTitle(msg().get("title.get-ready"), msg().get("title.get-ready-sub", "kit", Fmt.color(m.kit.displayName)), 5, 30, 5);
             msg().send(p, "match.starting");
             plugin.boards().update(p, m);
         }
-        if (m.players.size() < 2) abort(m);
+        if (m.players.size() < m.minPlayers) abort(m);
     }
 
     /** Heal, clear and give the kit. */
@@ -585,6 +769,34 @@ public final class MatchManager {
     // leaving / spectating
     // =====================================================================
 
+    private boolean teamGone(Match m) {
+        if (m.ffa) return false;
+        for (int t = 0; t < m.teamCount; t++) {
+            boolean allLeft = true;
+            for (UUID u : m.members(t)) if (!m.left.contains(u)) allLeft = false;
+            if (allLeft) return true;
+        }
+        return false;
+    }
+
+    /** A whole team walked out: the other side wins the match outright. */
+    private boolean forfeitEnd(Match m) {
+        if (m.ffa) return false;
+        for (int t = 0; t < m.teamCount; t++) {
+            boolean allLeft = true;
+            for (UUID u : m.members(t)) if (!m.left.contains(u)) allLeft = false;
+            if (!allLeft) continue;
+            Set<UUID> winners = new HashSet<>();
+            for (int o = 0; o < m.teamCount; o++) {
+                if (o == t) continue;
+                for (UUID u : m.members(o)) if (!m.left.contains(u)) winners.add(u);
+            }
+            end(m, winners, true);
+            return true;
+        }
+        return false;
+    }
+
     public boolean leave(Player p, boolean quit) {
         UUID id = p.getUniqueId();
         Match m = byPlayer.get(id);
@@ -604,27 +816,36 @@ public final class MatchManager {
             if (!quit) msg().send(p, "match.you-left");
             return true;
         }
+        if (m.state == State.BUILDING) {
+            m.players.remove(id);
+            byPlayer.remove(id);
+            if (!quit) msg().send(p, "match.you-left");
+            if (!m.ffa || m.players.size() < m.minPlayers) {
+                for (Player o : m.viewers()) msg().send(o, "match.aborted");
+                dismantle(m);
+            }
+            return true;
+        }
         if (m.spectators.contains(id)) {
             m.spectators.remove(id);
             restore(p, m);
             if (!quit) msg().send(p, "spectate.stopped");
             return true;
         }
-        boolean fighting = m.isAlive(id) && (m.state == State.ACTIVE || m.state == State.COUNTDOWN);
-        if (fighting) {
-            m.left.add(id);
-            m.eliminated.add(id);
-            m.broadcast(msg().prefixed("match.forfeit", "player", p.getName()));
-            restore(p, m);
-            if (!quit) msg().send(p, "match.you-left");
-            if (m.state == State.COUNTDOWN) {
-                if (m.alivePlayers().size() < 2) abort(m);
-            } else {
-                checkEnd(m);
+        boolean wasAlive = m.isAlive(id);
+        m.left.add(id);
+        m.eliminated.add(id);
+        if (wasAlive && m.state != State.ENDING) m.broadcast(msg().prefixed("match.forfeit", "player", p.getName()));
+        restore(p, m);
+        if (!quit) msg().send(p, "match.you-left");
+        switch (m.state) {
+            case COUNTDOWN -> {
+                if (m.ffa ? m.alivePlayers().size() < 2 : teamGone(m)) abort(m);
             }
-        } else {
-            restore(p, m);
-            if (!quit) msg().send(p, "match.you-left");
+            case ACTIVE, BETWEEN -> {
+                if (!forfeitEnd(m) && m.state == State.ACTIVE) checkEnd(m);
+            }
+            default -> { }
         }
         return true;
     }
@@ -638,7 +859,7 @@ public final class MatchManager {
             msg().send(p, "already-in-match");
             return;
         }
-        if (m == null || m.state == State.LOBBY || !matches.containsKey(m.id)) {
+        if (m == null || !m.inArena() || !matches.containsKey(m.id)) {
             msg().send(p, "spectate.no-matches");
             return;
         }
@@ -648,6 +869,7 @@ public final class MatchManager {
         snap.save(plugin.snapshotFile(id));
         m.spectators.add(id);
         byPlayer.put(id, m);
+        plugin.queue().remove(id);
         p.closeInventory();
         p.getInventory().clear();
         p.setGameMode(GameMode.SPECTATOR);
@@ -663,12 +885,12 @@ public final class MatchManager {
         return m != null && m.inArena() ? m : null;
     }
 
+    private boolean toLobby() {
+        return cfg().getBoolean("lobby.return-to-lobby", true) && plugin.lobby() != null;
+    }
+
     private Location returnLocation(PlayerSnapshot s) {
-        if (cfg().getBoolean("lobby.return-to-lobby", false)) {
-            Location l = lobbyLocation();
-            if (l != null) return l;
-        }
-        return s.location();
+        return toLobby() ? plugin.lobby() : s.location();
     }
 
     public Location lobbyLocation() {
@@ -687,6 +909,7 @@ public final class MatchManager {
             s.restore(p, returnLocation(s), cfg().getBoolean("restore.heal-on-return", true));
             plugin.snapshotFile(id).delete();
         }
+        if (toLobby()) plugin.hubItems().give(p);
     }
 
     /** Called on join: recovers a player whose match was interrupted by a crash or restart. */
@@ -694,15 +917,14 @@ public final class MatchManager {
         File f = plugin.snapshotFile(p.getUniqueId());
         if (!f.exists() || inMatch(p.getUniqueId())) return;
         PlayerSnapshot s = PlayerSnapshot.load(f);
-        if (s != null) {
-            Location dest = cfg().getBoolean("lobby.return-to-lobby", false) && lobbyLocation() != null ? lobbyLocation() : s.location();
-            s.restore(p, dest, true);
-        }
+        if (s != null) s.restore(p, toLobby() ? plugin.lobby() : s.location(), true);
         f.delete();
     }
 
     public void onQuit(Player p) {
         leave(p, true);
+        plugin.queue().remove(p.getUniqueId());
+        plugin.parties().onQuit(p);
         requests.remove(p.getUniqueId());
         for (List<DuelRequest> l : requests.values()) l.removeIf(r -> r.from.equals(p.getUniqueId()));
     }
@@ -731,7 +953,7 @@ public final class MatchManager {
         UUID v = victim.getUniqueId();
         m.dying.remove(v);
         if (m.state != State.ACTIVE || !m.isAlive(v) || !victim.isOnline()) return;
-        if (killer != null && (killer.equals(victim) || !m.isAlive(killer.getUniqueId()))) killer = null;
+        if (killer != null && (killer.equals(victim) || !m.isAlive(killer.getUniqueId()) || m.sameTeam(killer.getUniqueId(), v))) killer = null;
 
         m.deaths.merge(v, 1, Integer::sum);
         PlayerStats vs = plugin.stats().get(v, victim.getName());
@@ -744,6 +966,8 @@ public final class MatchManager {
             m.kills.merge(k, 1, Integer::sum);
             PlayerStats ks = plugin.stats().get(k, killer.getName());
             ks.kills++;
+            ks.seasonKills++;
+            ks.kitKills.merge(m.kit.id, 1, Integer::sum);
             ks.killStreak++;
             ks.bestKillStreak = Math.max(ks.bestKillStreak, ks.killStreak);
             double heal = cfg().getDouble("combat.heal-on-kill", 0);
@@ -761,16 +985,12 @@ public final class MatchManager {
         if (cfg().getBoolean("combat.broadcast-killfeed", false)) Bukkit.broadcastMessage(feed);
 
         Location vl = victim.getLocation().add(0, 1, 0);
-        Fx.particle(vl, cfg().getString("effects.kill.particle", "TOTEM_OF_UNDYING"), cfg().getInt("effects.kill.count", 35), 0.5);
-        if (cfg().getBoolean("effects.kill.lightning", false)) vl.getWorld().strikeLightningEffect(vl);
+        plugin.cosmetics().kill(killer, vl);
         Fx.sound(vl, cfg().getString("sounds.death", ""), 1f, 1f);
 
         int left = m.livesLeft.merge(v, -1, Integer::sum);
-        if (left > 0) {
-            respawn(m, victim, left);
-        } else {
-            eliminate(m, victim);
-        }
+        if (left > 0) respawn(m, victim, left);
+        else eliminate(m, victim);
         checkEnd(m);
     }
 
@@ -784,7 +1004,7 @@ public final class MatchManager {
 
     private Location bestSpawn(Match m, Player self) {
         Arena a = m.arena;
-        List<Player> others = m.aliveOthers(self);
+        List<Player> others = m.enemiesOf(self);
         Location best = a.spawn(0);
         double bestMin = -1;
         int start = random.nextInt(a.spawns.size());
@@ -800,6 +1020,7 @@ public final class MatchManager {
         return best;
     }
 
+    @SuppressWarnings("deprecation")
     private void eliminate(Match m, Player p) {
         m.eliminated.add(p.getUniqueId());
         p.getInventory().clear();
@@ -811,27 +1032,128 @@ public final class MatchManager {
         msg().send(p, "match.eliminated");
     }
 
+    // =====================================================================
+    // rounds
+    // =====================================================================
+
     private void checkEnd(Match m) {
         if (m.state != State.ACTIVE) return;
-        List<Player> alive = m.alivePlayers();
-        if (alive.size() <= 1) end(m, alive.isEmpty() ? null : alive.get(0).getUniqueId(), true);
+        if (m.ffa) {
+            List<Player> alive = m.alivePlayers();
+            if (alive.size() <= 1) {
+                Set<UUID> w = new HashSet<>();
+                if (!alive.isEmpty()) w.add(alive.get(0).getUniqueId());
+                end(m, w, true);
+            }
+            return;
+        }
+        Set<Integer> alive = m.aliveTeams();
+        if (alive.size() > 1) return;
+        roundEnd(m, alive.isEmpty() ? -1 : alive.iterator().next());
     }
 
-    /** Cancels a match that cannot proceed (not enough players). No stats are recorded. */
-    private void abort(Match m) {
-        m.broadcast(msg().prefixed("match.aborted"));
-        end(m, null, false);
+    private void timeout(Match m) {
+        m.broadcast(msg().prefixed("match.timeout"));
+        if (m.ffa) {
+            end(m, topKillers(m), true);
+            return;
+        }
+        int best = -1, bestCount = -1;
+        boolean tie = false;
+        for (int t = 0; t < m.teamCount; t++) {
+            int c = m.teamAlive(t);
+            if (c > bestCount) {
+                best = t;
+                bestCount = c;
+                tie = false;
+            } else if (c == bestCount) {
+                tie = true;
+            }
+        }
+        roundEnd(m, tie ? -1 : best);
+    }
+
+    private String teamLabel(Match m, int t) {
+        if (m.teamSize == 1) return names(m.members(t));
+        return msg().get("team." + t);
+    }
+
+    private String scoreString(Match m) {
+        List<String> parts = new ArrayList<>();
+        for (int t = 0; t < m.teamCount; t++) parts.add(String.valueOf(m.score.getOrDefault(t, 0)));
+        return String.join(" - ", parts);
+    }
+
+    private void roundEnd(Match m, int winTeam) {
+        if (winTeam >= 0) m.score.merge(winTeam, 1, Integer::sum);
+        int needed = m.bestOf / 2 + 1;
+        if (winTeam >= 0 && m.score.getOrDefault(winTeam, 0) >= needed) {
+            end(m, new HashSet<>(m.members(winTeam)), true);
+            return;
+        }
+        if (m.bestOf <= 1) {
+            end(m, winTeam >= 0 ? new HashSet<>(m.members(winTeam)) : new HashSet<>(), true);
+            return;
+        }
+        if (m.round >= m.bestOf + 2) { // too many drawn rounds: decide on points
+            int best = -1, bc = -1;
+            boolean tie = false;
+            for (int t = 0; t < m.teamCount; t++) {
+                int s = m.score.getOrDefault(t, 0);
+                if (s > bc) {
+                    best = t;
+                    bc = s;
+                    tie = false;
+                } else if (s == bc) {
+                    tie = true;
+                }
+            }
+            end(m, tie ? new HashSet<>() : new HashSet<>(m.members(best)), true);
+            return;
+        }
+        m.state = State.BETWEEN;
+        m.endTimer = 3;
+        String who = winTeam >= 0 ? teamLabel(m, winTeam) : msg().get("match.round-draw");
+        m.broadcast(msg().prefixed("match.round-end", "round", m.round, "winner", who, "score", scoreString(m)));
+        for (Player p : m.viewers()) Fx.sound(p, cfg().getString("sounds.kill", ""), 1f, 0.8f);
+    }
+
+    private void startRound(Match m) {
+        m.round++;
+        plugin.arenas().restoreBlocksNow(m);
+        for (UUID id : m.players) {
+            if (m.left.contains(id)) continue;
+            Player p = Bukkit.getPlayer(id);
+            if (p == null) continue;
+            m.eliminated.remove(id);
+            m.livesLeft.put(id, m.lives);
+            m.dying.remove(id);
+            m.protectedUntil.remove(id);
+            m.lastDamager.remove(id);
+            plugin.abilities().clear(id);
+            prepare(p, m);
+            tp(p, m.arena.spawn(m.spawnSlot.getOrDefault(id, 0)));
+        }
+        m.state = State.COUNTDOWN;
+        m.countdown = Math.max(1, cfg().getInt("duel.round-countdown", 3));
     }
 
     // =====================================================================
     // ending
     // =====================================================================
 
-    private void end(Match m, UUID winner, boolean countStats) {
+    /** Cancels a match that cannot proceed. No stats are recorded. */
+    private void abort(Match m) {
+        for (Player p : m.viewers()) msg().send(p, "match.aborted");
+        end(m, new HashSet<>(), false);
+    }
+
+    private void end(Match m, Set<UUID> winners, boolean countStats) {
         if (m.state == State.ENDING) return;
         m.state = State.ENDING;
         m.endTimer = Math.max(1, cfg().getInt("duel.end-delay", 6));
-        m.winner = winner;
+        m.winners.clear();
+        m.winners.addAll(winners);
         m.dying.clear();
         List<UUID> all = new ArrayList<>(m.players);
 
@@ -839,24 +1161,27 @@ public final class MatchManager {
             for (UUID id : all) {
                 PlayerStats st = plugin.stats().get(id, nameOf(id));
                 st.matches++;
-                if (id.equals(winner)) {
+                if (winners.contains(id)) {
                     st.wins++;
+                    st.seasonWins++;
+                    st.kitWins.merge(m.kit.id, 1, Integer::sum);
                     st.winStreak++;
                     st.bestWinStreak = Math.max(st.bestWinStreak, st.winStreak);
-                } else if (winner != null) {
+                } else if (!winners.isEmpty()) {
                     st.losses++;
                     st.winStreak = 0;
                 }
             }
-            if (winner != null) {
-                m.broadcast(msg().prefixed("match.end.winner", "winner", nameOf(winner)));
+            if (!winners.isEmpty()) {
+                m.broadcast(msg().prefixed("match.end.winner", "winner", names(winners)));
+                if (m.bestOf > 1 && !m.ffa) m.broadcast(msg().prefixed("match.end.score", "score", scoreString(m)));
             } else {
                 m.broadcast(msg().prefixed("match.end.draw"));
             }
             for (UUID id : all) {
                 m.broadcast(msg().get("match.end.player-line", "player", nameOf(id), "kills", m.kills(id), "deaths", m.deaths(id)));
             }
-            if (!m.ffa && m.ranked && winner != null && all.size() == 2) applyElo(m, winner, all);
+            if (!m.ffa && m.ranked && m.teamSize == 1 && winners.size() == 1 && all.size() == 2) applyElo(m, winners.iterator().next(), all);
             plugin.stats().markDirty();
             plugin.stats().save(true);
         }
@@ -864,9 +1189,9 @@ public final class MatchManager {
         for (Player p : m.viewers()) {
             UUID id = p.getUniqueId();
             if (!m.isParticipant(id)) continue;
-            if (winner == null) {
+            if (winners.isEmpty()) {
                 p.sendTitle(msg().get("title.draw"), "", 5, 50, 10);
-            } else if (id.equals(winner)) {
+            } else if (winners.contains(id)) {
                 p.sendTitle(msg().get("title.victory"), msg().get("title.victory-sub"), 5, 60, 15);
                 Fx.sound(p, cfg().getString("sounds.victory", ""), 1f, 1f);
             } else {
@@ -874,7 +1199,7 @@ public final class MatchManager {
                 Fx.sound(p, cfg().getString("sounds.defeat", ""), 1f, 1f);
             }
         }
-        if (winner != null) victoryEffects(m, winner);
+        if (!winners.isEmpty()) victoryEffects(m, winners);
     }
 
     private void applyElo(Match m, UUID winner, List<UUID> all) {
@@ -894,22 +1219,30 @@ public final class MatchManager {
         m.broadcast(msg().get("match.end.elo", "player", l.name, "elo", l.elo, "change", "&c-" + lossDelta));
     }
 
-    private void victoryEffects(Match m, UUID winner) {
-        int count = cfg().getInt("effects.victory.fireworks", 6);
-        List<String> colors = cfg().getStringList("effects.victory.colors");
-        if (count <= 0) return;
+    private void victoryEffects(Match m, Set<UUID> winners) {
+        int max = 0;
+        for (UUID w : winners) {
+            Player p = Bukkit.getPlayer(w);
+            if (p != null) max = Math.max(max, plugin.cosmetics().victoryCount(p));
+        }
+        if (max <= 0) return;
+        final int total = max;
         new BukkitRunnable() {
             int n = 0;
 
             @Override
             public void run() {
-                Player w = Bukkit.getPlayer(winner);
-                if (w == null || m.state != State.ENDING || n++ >= count) {
+                if (m.state != State.ENDING || n >= total) {
                     cancel();
                     return;
                 }
-                Location l = w.getLocation().add(random.nextInt(5) - 2, 2, random.nextInt(5) - 2);
-                Fx.firework(l, colors);
+                for (UUID w : winners) {
+                    Player p = Bukkit.getPlayer(w);
+                    if (p == null || n >= plugin.cosmetics().victoryCount(p)) continue;
+                    Location l = p.getLocation().add(random.nextInt(5) - 2, 2, random.nextInt(5) - 2);
+                    Fx.firework(l, plugin.cosmetics().victoryColors(p));
+                }
+                n++;
             }
         }.runTaskTimer(plugin, 5L, 10L);
     }
@@ -929,13 +1262,17 @@ public final class MatchManager {
                 byPlayer.remove(id);
             }
         }
-        plugin.arenas().restore(m);
+        if (m.arena != null) {
+            if (m.arena.temporary) plugin.instances().release(m.arena, m);
+            else plugin.arenas().restore(m);
+        }
 
-        if (!m.ffa && m.winner != null && m.players.size() == 2) {
+        if (!m.ffa && m.teamSize == 1 && m.teamCount == 2 && !m.winners.isEmpty() && m.players.size() == 2) {
             long exp = System.currentTimeMillis() + 60_000L;
             List<UUID> pl = new ArrayList<>(m.players);
-            lastMatches.put(pl.get(0), new LastMatch(pl.get(1), m.kit.id, m.arena.name, m.ranked, exp));
-            lastMatches.put(pl.get(1), new LastMatch(pl.get(0), m.kit.id, m.arena.name, m.ranked, exp));
+            String arenaName = m.arena != null && !m.arena.temporary ? m.arena.name : null;
+            lastMatches.put(pl.get(0), new LastMatch(pl.get(1), m.kit.id, arenaName, m.ranked, m.bestOf, exp));
+            lastMatches.put(pl.get(1), new LastMatch(pl.get(0), m.kit.id, arenaName, m.ranked, m.bestOf, exp));
             for (Player p : restored) {
                 if (!m.isParticipant(p.getUniqueId())) continue;
                 UUID other = pl.get(0).equals(p.getUniqueId()) ? pl.get(1) : pl.get(0);
@@ -951,8 +1288,13 @@ public final class MatchManager {
             cancelLobby(m);
             return true;
         }
+        if (m.state == State.BUILDING) {
+            for (Player o : m.viewers()) msg().send(o, "match.aborted");
+            dismantle(m);
+            return true;
+        }
         if (m.state == State.ENDING) return true;
-        end(m, null, false);
+        end(m, new HashSet<>(), false);
         return true;
     }
 }

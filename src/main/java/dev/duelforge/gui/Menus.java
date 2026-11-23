@@ -5,6 +5,7 @@ import dev.duelforge.arena.Arena;
 import dev.duelforge.kit.Kit;
 import dev.duelforge.match.Match;
 import dev.duelforge.match.MatchManager.DuelRequest;
+import dev.duelforge.queue.QueueManager;
 import dev.duelforge.stats.StatsManager.PlayerStats;
 import dev.duelforge.util.Fmt;
 import dev.duelforge.util.Items;
@@ -45,7 +46,7 @@ public final class Menus {
     // =====================================================================
     public static final class Hub extends Menu {
         public Hub(DuelForge pl, Player v) {
-            super(pl, v, 4, pl.messages().get("gui.hub.title"));
+            super(pl, v, 5, pl.messages().get("gui.hub.title"));
         }
 
         @Override
@@ -53,14 +54,17 @@ public final class Menus {
             inv.clear();
             border(Material.BLACK_STAINED_GLASS_PANE);
             set(10, icon(Material.DIAMOND_SWORD, "gui.hub.duel"));
-            set(12, icon(Material.NETHERITE_AXE, "gui.hub.ffa"));
-            set(14, icon(Material.ENDER_CHEST, "gui.hub.kits"));
-            set(16, icon(Material.ANVIL, "gui.hub.editor"));
-            set(20, icon(Material.PAPER, "gui.hub.invites", "count", plugin.matches().incoming(viewer.getUniqueId()).size()));
-            ItemStack stats = Items.head(viewer, t("gui.hub.stats.name"), plugin.messages().list("gui.hub.stats.lore"));
-            set(22, stats);
-            set(24, icon(Material.ENDER_EYE, "gui.hub.spectate"));
-            set(31, Items.make(Material.BARRIER, t("gui.close")));
+            set(12, icon(Material.NETHER_STAR, "gui.hub.queue"));
+            set(14, icon(Material.NETHERITE_AXE, "gui.hub.ffa"));
+            set(16, icon(Material.ENDER_CHEST, "gui.hub.kits"));
+            set(19, icon(Material.ANVIL, "gui.hub.editor"));
+            set(21, icon(Material.FIREWORK_ROCKET, "gui.hub.cosmetics"));
+            set(23, icon(Material.PAPER, "gui.hub.invites", "count", plugin.matches().incoming(viewer.getUniqueId()).size()));
+            set(25, icon(Material.ENDER_EYE, "gui.hub.spectate"));
+            set(28, Items.head(viewer, t("gui.hub.stats.name"), plugin.messages().list("gui.hub.stats.lore")));
+            set(30, icon(Material.PLAYER_HEAD, "gui.hub.friends"));
+            set(32, icon(Material.NAME_TAG, "gui.hub.party"));
+            set(40, Items.make(Material.BARRIER, t("gui.close")));
         }
 
         @Override
@@ -68,13 +72,17 @@ public final class Menus {
             var g = plugin.gui();
             switch (e.getRawSlot()) {
                 case 10 -> later(() -> g.players(viewer));
-                case 12 -> later(() -> g.lobbies(viewer));
-                case 14 -> later(() -> g.kitBrowser(viewer));
-                case 16 -> later(() -> g.editor(viewer));
-                case 20 -> later(() -> g.invites(viewer));
-                case 22 -> later(() -> g.stats(viewer, viewer));
-                case 24 -> later(() -> g.spectate(viewer));
-                case 31 -> later(viewer::closeInventory);
+                case 12 -> later(() -> g.queue(viewer));
+                case 14 -> later(() -> g.lobbies(viewer));
+                case 16 -> later(() -> g.kitBrowser(viewer));
+                case 19 -> later(() -> g.editor(viewer));
+                case 21 -> later(() -> g.cosmetics(viewer));
+                case 23 -> later(() -> g.invites(viewer));
+                case 25 -> later(() -> g.spectate(viewer));
+                case 28 -> later(() -> g.stats(viewer, viewer));
+                case 30 -> later(() -> g.friends(viewer));
+                case 32 -> later(() -> g.party(viewer));
+                case 40 -> later(viewer::closeInventory);
                 default -> { }
             }
         }
@@ -82,8 +90,11 @@ public final class Menus {
 
     // =====================================================================
     public static final class PlayerPick extends PagedMenu<Player> {
-        public PlayerPick(DuelForge pl, Player v) {
-            super(pl, v, pl.messages().get("gui.players.title"), () -> pl.gui().hub(v));
+        private final Consumer<Player> onPick;
+
+        public PlayerPick(DuelForge pl, Player v, String title, Consumer<Player> onPick) {
+            super(pl, v, title, () -> pl.gui().hub(v));
+            this.onPick = onPick;
         }
 
         @Override
@@ -102,7 +113,7 @@ public final class Menus {
 
         @Override
         protected void select(Player p, InventoryClickEvent e) {
-            later(() -> plugin.gui().duelSetup(viewer, p));
+            later(() -> onPick.accept(p));
         }
     }
 
@@ -115,21 +126,37 @@ public final class Menus {
             this.s = s;
         }
 
+        private int partySize() {
+            var party = plugin.parties().of(viewer.getUniqueId());
+            return party == null ? 1 : Math.max(1, party.members.size());
+        }
+
         @Override
         public void build() {
             inv.clear();
             fill(Material.BLACK_STAINED_GLASS_PANE);
             Kit k = s.kit;
             set(10, Items.make(k.icon, t("gui.setup.kit.name", "kit", Fmt.color(k.displayName)), plugin.messages().list("gui.setup.kit.lore")));
-            String arenaName = s.arena == null ? t("request.random-arena") : Fmt.color(s.arena.displayName);
-            set(12, icon(s.arena == null ? Material.COMPASS : s.arena.icon, "gui.setup.arena", "arena", arenaName));
-            if (s.ffa) set(14, icon(Material.IRON_SWORD, "gui.setup.ffa-mode"));
+            if (s.type == Setup.Type.QUEUE) {
+                set(12, icon(Material.NETHER_STAR, "gui.setup.queue-mode", "mode", QueueManager.modeName(s.teamSize)));
+            } else {
+                String arenaName = s.arena == null ? t("request.random-arena") : Fmt.color(s.arena.displayName);
+                set(12, icon(s.arena == null ? Material.COMPASS : s.arena.icon, "gui.setup.arena", "arena", arenaName));
+            }
+            if (s.type == Setup.Type.FFA) set(14, icon(Material.IRON_SWORD, "gui.setup.ffa-mode"));
             else set(14, icon(s.ranked ? Material.GOLD_INGOT : Material.IRON_INGOT, "gui.setup.ranked", "mode", plugin.matches().modeName(s.ranked)));
             set(16, icon(Material.BOOK, "gui.setup.preview"));
-            if (s.ffa) set(22, icon(Material.EMERALD_BLOCK, "gui.setup.create"));
-            else {
-                OfflinePlayer target = Bukkit.getOfflinePlayer(s.target);
-                set(22, icon(Material.EMERALD_BLOCK, "gui.setup.send", "target", target.getName() == null ? "?" : target.getName()));
+            if (s.type != Setup.Type.FFA) set(24, icon(Material.CLOCK, "gui.setup.rounds", "rounds", s.bestOf));
+            switch (s.type) {
+                case FFA -> set(22, icon(Material.EMERALD_BLOCK, "gui.setup.create"));
+                case QUEUE -> {
+                    if (plugin.queue().get(viewer.getUniqueId()) != null) set(22, icon(Material.REDSTONE_BLOCK, "gui.setup.queue-leave"));
+                    else set(22, icon(Material.EMERALD_BLOCK, "gui.setup.queue-join", "mode", QueueManager.modeName(s.teamSize)));
+                }
+                default -> {
+                    OfflinePlayer target = Bukkit.getOfflinePlayer(s.target);
+                    set(22, icon(Material.EMERALD_BLOCK, "gui.setup.send", "target", target.getName() == null ? "?" : target.getName()));
+                }
             }
             set(18, icon(Material.REDSTONE_BLOCK, "gui.setup.cancel"));
         }
@@ -142,22 +169,45 @@ public final class Menus {
                     s.kit = kit;
                     g.setupMenu(viewer, s);
                 }, () -> g.setupMenu(viewer, s)));
-                case 12 -> later(() -> g.arenas(viewer, s));
+                case 12 -> {
+                    if (s.type == Setup.Type.QUEUE) {
+                        int min = Math.min(3, partySize());
+                        do {
+                            s.teamSize = s.teamSize % 3 + 1;
+                        } while (s.teamSize < min);
+                        if (s.teamSize > 1) s.ranked = false;
+                        refresh();
+                    } else {
+                        later(() -> g.arenas(viewer, s));
+                    }
+                }
                 case 14 -> {
-                    if (!s.ffa && plugin.getConfig().getBoolean("duel.ranked-enabled", true)) {
+                    boolean canRank = s.type != Setup.Type.FFA && s.teamSize == 1 && plugin.getConfig().getBoolean("duel.ranked-enabled", true);
+                    if (canRank) {
                         s.ranked = !s.ranked;
                         refresh();
                     }
                 }
                 case 16 -> later(() -> g.preview(viewer, s.kit, null, () -> g.setupMenu(viewer, s)));
+                case 24 -> {
+                    if (s.type != Setup.Type.FFA) {
+                        s.bestOf = s.bestOf == 1 ? 3 : (s.bestOf == 3 ? 5 : 1);
+                        refresh();
+                    }
+                }
                 case 22 -> later(() -> {
                     viewer.closeInventory();
-                    if (s.ffa) {
-                        plugin.matches().createLobby(viewer, s.kit, s.arena);
-                    } else {
-                        Player target = Bukkit.getPlayer(s.target);
-                        if (target == null) plugin.messages().send(viewer, "player-not-found");
-                        else plugin.matches().sendRequest(viewer, target, s.kit, s.arena, s.ranked);
+                    switch (s.type) {
+                        case FFA -> plugin.matches().createLobby(viewer, s.kit, s.arena);
+                        case QUEUE -> {
+                            if (plugin.queue().get(viewer.getUniqueId()) != null) plugin.queue().leave(viewer.getUniqueId());
+                            else plugin.queue().join(viewer, s.teamSize, s.kit, s.ranked, s.bestOf);
+                        }
+                        default -> {
+                            Player target = s.target == null ? null : Bukkit.getPlayer(s.target);
+                            if (target == null) plugin.messages().send(viewer, "player-not-found");
+                            else plugin.matches().sendRequest(viewer, target, s.kit, s.arena, s.ranked, s.bestOf);
+                        }
                     }
                 });
                 case 18 -> later(viewer::closeInventory);
@@ -329,7 +379,7 @@ public final class Menus {
             long secs = Math.max(0, (r.expires - System.currentTimeMillis()) / 1000);
             return Items.head(from, "&e" + (from.getName() == null ? "?" : from.getName()),
                     plugin.messages().list("gui.invites.lore", "kit", Fmt.color(r.kit.displayName), "arena", arena,
-                            "mode", plugin.matches().modeName(r.ranked), "seconds", secs));
+                            "mode", plugin.matches().describe(r), "seconds", secs));
         }
 
         @Override
@@ -407,7 +457,7 @@ public final class Menus {
             boolean mine = m.host.equals(viewer.getUniqueId());
             return Items.make(m.kit.icon, t("gui.lobbies.name", "host", host == null ? "?" : host),
                     plugin.messages().list(mine ? "gui.lobbies.host-lore" : "gui.lobbies.lore", "kit", Fmt.color(m.kit.displayName),
-                            "arena", Fmt.color(m.arena.displayName), "count", m.players.size(), "max", m.maxPlayers));
+                            "arena", m.arenaName(), "count", m.players.size(), "max", m.maxPlayers));
         }
 
         @Override
@@ -449,7 +499,7 @@ public final class Menus {
                 if (n != null) names.add(n);
             }
             return Items.make(m.kit.icon, t("gui.spectate.name", "kit", Fmt.color(m.kit.displayName)),
-                    plugin.messages().list("gui.spectate.lore", "arena", Fmt.color(m.arena.displayName),
+                    plugin.messages().list("gui.spectate.lore", "arena", m.arenaName(),
                             "players", String.join(", ", names), "state", Fmt.pretty(m.state.name())));
         }
 

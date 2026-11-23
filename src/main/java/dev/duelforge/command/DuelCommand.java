@@ -24,8 +24,9 @@ import java.util.Locale;
 /** Handles /duel, /accept, /deny and /duelstats. */
 public final class DuelCommand implements CommandExecutor, TabCompleter {
     private static final List<String> SUBS = List.of("accept", "deny", "leave", "stats", "top", "kits", "kit", "editkit",
-            "spectate", "ffa", "join", "start", "rematch", "invites", "menu", "lobby", "help", "admin");
-    private static final List<String> ADMIN = List.of("reload", "arena", "setlobby", "build", "world", "autosetup", "end", "resetstats");
+            "spectate", "ffa", "join", "start", "rematch", "invites", "menu", "lobby", "queue", "party", "friends",
+            "cosmetics", "help", "admin");
+    private static final List<String> ADMIN = List.of("reload", "arena", "setlobby", "build", "world", "autosetup", "kit", "board", "season", "end", "resetstats");
     private static final List<String> WORLD = List.of("create", "tp", "list");
     private static final List<String> ARENA = List.of("create", "quick", "delete", "pos1", "pos2", "addspawn", "clearspawns",
             "spectator", "toggle", "building", "icon", "list", "info", "tp", "generate");
@@ -84,8 +85,13 @@ public final class DuelCommand implements CommandExecutor, TabCompleter {
             case "accept" -> mm.accept(p, args.length > 1 ? args[1] : null);
             case "deny" -> mm.deny(p, args.length > 1 ? args[1] : null);
             case "leave" -> {
-                if (!mm.leave(p, false)) plugin.messages().send(p, "not-in-match");
+                if (plugin.queue().get(p.getUniqueId()) != null) plugin.queue().leave(p.getUniqueId());
+                else if (!mm.leave(p, false)) plugin.messages().send(p, "not-in-match");
             }
+            case "queue", "q" -> plugin.extra().queue(p, java.util.Arrays.copyOfRange(args, 1, args.length));
+            case "party" -> plugin.extra().party(p, java.util.Arrays.copyOfRange(args, 1, args.length));
+            case "friends", "friend" -> plugin.extra().friend(p, java.util.Arrays.copyOfRange(args, 1, args.length));
+            case "cosmetics", "cosmetic" -> gui.cosmetics(p);
             case "stats" -> stats(p, java.util.Arrays.copyOfRange(args, 1, args.length));
             case "top" -> top(p, args.length > 1 ? args[1] : "wins");
             case "kits" -> gui.kitBrowser(p);
@@ -286,12 +292,167 @@ public final class DuelCommand implements CommandExecutor, TabCompleter {
                 if (s instanceof Player p) {
                     boolean on = plugin.toggleBuilder(p.getUniqueId());
                     plugin.messages().send(s, on ? "admin.build-on" : "admin.build-off");
+                    if (!on) plugin.hubItems().give(p);
                 } else plugin.messages().send(s, "player-only");
             }
             case "world" -> adminWorld(s, a);
             case "autosetup" -> autosetup(s, a);
+            case "kit" -> adminKit(s, a);
+            case "board" -> adminBoard(s, a);
+            case "season" -> adminSeason(s, a);
             default -> plugin.messages().send(s, "admin.usage");
         }
+    }
+
+    /** /duel admin kit <create|delete|icon|name|setting|list> ... - kits made in-game (custom-kits.yml). */
+    private void adminKit(CommandSender s, String[] a) {
+        var ms = plugin.messages();
+        var km = plugin.kits();
+        if (a.length < 3) {
+            ms.send(s, "admin.kit-usage");
+            return;
+        }
+        String sub = a[2].toLowerCase(Locale.ROOT);
+        if (sub.equals("list")) {
+            for (Kit k : km.all()) s.sendMessage(ms.get("admin.kit-list-entry", "id", k.id, "type", k.custom ? "&acustom" : "&7kits.yml"));
+            return;
+        }
+        if (a.length < 4) {
+            ms.send(s, "admin.kit-usage");
+            return;
+        }
+        String id = a[3].toLowerCase(Locale.ROOT);
+        Kit k = km.get(id);
+        if (sub.equals("create")) {
+            if (!(s instanceof Player p)) {
+                ms.send(s, "player-only");
+                return;
+            }
+            if (!id.matches("[a-z0-9_\\-]{1,24}")) {
+                ms.send(s, "admin.kit-usage");
+                return;
+            }
+            if (k != null) {
+                ms.send(s, "admin.kit-exists");
+                return;
+            }
+            Kit created = km.createCustom(id, p);
+            ms.send(s, "admin.kit-created", "name", id, "items", created.inventory.size() + created.equipment.size());
+            return;
+        }
+        if (k == null) {
+            ms.send(s, "kit-not-found");
+            return;
+        }
+        if (sub.equals("delete")) {
+            ms.send(s, km.deleteCustom(id) ? "admin.kit-deleted" : "admin.kit-not-custom");
+            return;
+        }
+        if (!k.custom) {
+            ms.send(s, "admin.kit-not-custom");
+            return;
+        }
+        switch (sub) {
+            case "icon" -> {
+                if (!(s instanceof Player p) || p.getInventory().getItemInMainHand().getType() == Material.AIR) {
+                    ms.send(s, "admin.kit-hold-item");
+                    return;
+                }
+                k.icon = p.getInventory().getItemInMainHand().getType();
+            }
+            case "name" -> {
+                if (a.length < 5) {
+                    ms.send(s, "admin.kit-usage");
+                    return;
+                }
+                k.displayName = String.join(" ", java.util.Arrays.copyOfRange(a, 4, a.length));
+            }
+            case "desc" -> {
+                if (a.length < 5) {
+                    ms.send(s, "admin.kit-usage");
+                    return;
+                }
+                k.description = new ArrayList<>(List.of(String.join(" ", java.util.Arrays.copyOfRange(a, 4, a.length))));
+            }
+            case "setting" -> {
+                if (a.length < 6) {
+                    ms.send(s, "admin.kit-usage");
+                    return;
+                }
+                boolean v = a[5].equalsIgnoreCase("true");
+                switch (a[4].toLowerCase(Locale.ROOT)) {
+                    case "regen" -> k.naturalRegen = v;
+                    case "hunger" -> k.hunger = v;
+                    case "fall" -> k.fallDamage = v;
+                    default -> {
+                        ms.send(s, "admin.kit-usage");
+                        return;
+                    }
+                }
+            }
+            default -> {
+                ms.send(s, "admin.kit-usage");
+                return;
+            }
+        }
+        km.saveCustom();
+        ms.send(s, "admin.kit-updated");
+    }
+
+    /** /duel admin board <create|remove|refresh> [metric] - leaderboard holograms. */
+    private void adminBoard(CommandSender s, String[] a) {
+        var ms = plugin.messages();
+        var lb = plugin.leaderboards();
+        if (a.length < 3) {
+            ms.send(s, "admin.board-usage");
+            return;
+        }
+        switch (a[2].toLowerCase(Locale.ROOT)) {
+            case "create" -> {
+                if (!(s instanceof Player p)) {
+                    ms.send(s, "player-only");
+                    return;
+                }
+                String metric = a.length > 3 ? a[3].toLowerCase(Locale.ROOT) : "wins";
+                if (!lb.validMetric(metric)) {
+                    ms.send(s, "admin.board-usage");
+                    return;
+                }
+                lb.create(p, metric);
+                ms.send(s, "admin.board-created");
+            }
+            case "remove" -> {
+                if (!(s instanceof Player p)) {
+                    ms.send(s, "player-only");
+                    return;
+                }
+                ms.send(s, lb.removeNearest(p, 6) ? "admin.board-removed" : "admin.board-none-near");
+            }
+            case "refresh" -> {
+                lb.refreshAll();
+                ms.send(s, "admin.board-refreshed");
+            }
+            default -> ms.send(s, "admin.board-usage");
+        }
+    }
+
+    /** /duel admin season new confirm - archives the season and resets season counters. */
+    private void adminSeason(CommandSender s, String[] a) {
+        var ms = plugin.messages();
+        if (a.length < 3 || !a[2].equalsIgnoreCase("new")) {
+            ms.send(s, "admin.season-usage", "season", plugin.stats().season());
+            return;
+        }
+        if (a.length < 4 || !a[3].equalsIgnoreCase("confirm")) {
+            ms.send(s, "admin.season-confirm");
+            return;
+        }
+        var podium = plugin.stats().newSeason();
+        Bukkit.broadcastMessage(ms.get("admin.season-started", "season", plugin.stats().season()));
+        for (int i = 0; i < podium.size(); i++) {
+            Bukkit.broadcastMessage(ms.get("admin.season-podium", "rank", i + 1, "player", podium.get(i).name, "wins", podium.get(i).seasonWins));
+        }
+        plugin.leaderboards().refreshAll();
     }
 
     /** /duel admin arena generate <theme> [name] - builds a finished map at your feet. */
@@ -638,6 +799,15 @@ public final class DuelCommand implements CommandExecutor, TabCompleter {
         if (args.length == 2) out.addAll(ADMIN);
         else if (args.length == 3 && args[1].equalsIgnoreCase("arena")) out.addAll(ARENA);
         else if (args.length == 3 && args[1].equalsIgnoreCase("world")) out.addAll(WORLD);
+        else if (args.length == 3 && args[1].equalsIgnoreCase("kit")) out.addAll(List.of("create", "delete", "icon", "name", "desc", "setting", "list"));
+        else if (args.length == 4 && args[1].equalsIgnoreCase("kit")) for (Kit k : plugin.kits().all()) out.add(k.id);
+        else if (args.length == 3 && args[1].equalsIgnoreCase("board")) out.addAll(List.of("create", "remove", "refresh"));
+        else if (args.length == 4 && args[1].equalsIgnoreCase("board") && args[2].equalsIgnoreCase("create")) {
+            out.addAll(List.of("wins", "kills", "elo", "season_wins", "season_kills"));
+            for (Kit k : plugin.kits().enabled()) out.add("kit:" + k.id);
+        }
+        else if (args.length == 3 && args[1].equalsIgnoreCase("season")) out.add("new");
+        else if (args.length == 5 && args[1].equalsIgnoreCase("kit") && args[2].equalsIgnoreCase("setting")) out.addAll(List.of("regen", "hunger", "fall"));
         else if (args.length == 4 && args[1].equalsIgnoreCase("world") && args[2].equalsIgnoreCase("create")) out.addAll(List.of("void", "flat"));
         else if (args.length == 4 && args[1].equalsIgnoreCase("arena") && args[2].equalsIgnoreCase("generate")) {
             for (ArenaBuilder.Theme t : ArenaBuilder.Theme.values()) out.add(t.name().toLowerCase(Locale.ROOT));

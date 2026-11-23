@@ -1,13 +1,23 @@
 package dev.duelforge;
 
 import dev.duelforge.arena.ArenaManager;
+import dev.duelforge.arena.InstanceManager;
 import dev.duelforge.command.DuelCommand;
+import dev.duelforge.command.ExtraCommands;
+import dev.duelforge.cosmetic.CosmeticManager;
 import dev.duelforge.gui.GuiManager;
+import dev.duelforge.hook.PapiHook;
 import dev.duelforge.kit.AbilityManager;
 import dev.duelforge.kit.KitManager;
+import dev.duelforge.listener.HubListener;
 import dev.duelforge.listener.MatchListener;
 import dev.duelforge.match.MatchManager;
+import dev.duelforge.party.PartyManager;
+import dev.duelforge.queue.QueueManager;
+import dev.duelforge.social.FriendsManager;
 import dev.duelforge.stats.StatsManager;
+import dev.duelforge.ui.HubItems;
+import dev.duelforge.ui.LeaderboardManager;
 import dev.duelforge.ui.ScoreboardService;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
@@ -35,6 +45,7 @@ import java.util.UUID;
 /** DuelForge: kit-based PvP duels, FFA, ranked, spectating and a full GUI. */
 public final class DuelForge extends JavaPlugin {
     public NamespacedKey abilityKey;
+    public NamespacedKey hubKey;
 
     private Messages messages;
     private AbilityManager abilities;
@@ -44,6 +55,14 @@ public final class DuelForge extends JavaPlugin {
     private ScoreboardService boards;
     private MatchManager matches;
     private GuiManager gui;
+    private PartyManager parties;
+    private FriendsManager friends;
+    private CosmeticManager cosmetics;
+    private QueueManager queue;
+    private InstanceManager instances;
+    private HubItems hubItems;
+    private LeaderboardManager leaderboards;
+    private ExtraCommands extra;
     private final Set<UUID> builders = new HashSet<>();
     private final Map<String, String> customWorlds = new LinkedHashMap<>();
 
@@ -62,6 +81,7 @@ public final class DuelForge extends JavaPlugin {
             if (!new File(getDataFolder(), f).exists()) saveResource(f, false);
         }
         abilityKey = new NamespacedKey(this, "ability");
+        hubKey = new NamespacedKey(this, "hubaction");
         loadCustomWorlds();
 
         messages = new Messages(this);
@@ -76,8 +96,19 @@ public final class DuelForge extends JavaPlugin {
         boards = new ScoreboardService(this);
         matches = new MatchManager(this);
         gui = new GuiManager(this);
+        parties = new PartyManager(this);
+        friends = new FriendsManager(this);
+        friends.load();
+        cosmetics = new CosmeticManager(this);
+        queue = new QueueManager(this);
+        instances = new InstanceManager(this);
+        hubItems = new HubItems(this);
+        leaderboards = new LeaderboardManager(this);
+        leaderboards.load();
+        extra = new ExtraCommands(this);
 
         Bukkit.getPluginManager().registerEvents(new MatchListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new HubListener(this), this);
         Bukkit.getPluginManager().registerEvents(gui, this);
 
         DuelCommand dc = new DuelCommand(this);
@@ -89,8 +120,22 @@ public final class DuelForge extends JavaPlugin {
             }
         }
 
+        for (String n : new String[]{"queue", "party", "friend"}) {
+            PluginCommand pc = getCommand(n);
+            if (pc != null) {
+                pc.setExecutor(extra);
+                pc.setTabCompleter(extra);
+            }
+        }
+
         matches.start();
         stats.startAutosave();
+        leaderboards.start();
+        Bukkit.getScheduler().runTask(this, instances::ensureWorld); // pre-create the match world
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            PapiHook.register(this);
+            getLogger().info("PlaceholderAPI expansion registered (%duelforge_...%).");
+        }
         // /reload safety: recover anyone whose match snapshot is still on disk
         for (Player p : Bukkit.getOnlinePlayers()) matches.restorePending(p);
         getLogger().info("DuelForge enabled.");
@@ -98,6 +143,8 @@ public final class DuelForge extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (leaderboards != null) leaderboards.stop();
+        if (friends != null) friends.save(false);
         if (matches != null) matches.shutdown();
         if (stats != null) stats.stop();
         if (kits != null) kits.saveLayouts(false);
@@ -176,7 +223,7 @@ public final class DuelForge extends JavaPlugin {
         }
     }
 
-    private World buildWorld(String name, String type) {
+    public World buildWorld(String name, String type) {
         World existing = Bukkit.getWorld(name);
         if (existing != null) return existing;
         WorldCreator wc = new WorldCreator(name).generateStructures(false);
@@ -220,4 +267,12 @@ public final class DuelForge extends JavaPlugin {
     public ScoreboardService boards() { return boards; }
     public MatchManager matches() { return matches; }
     public GuiManager gui() { return gui; }
+    public PartyManager parties() { return parties; }
+    public FriendsManager friends() { return friends; }
+    public CosmeticManager cosmetics() { return cosmetics; }
+    public QueueManager queue() { return queue; }
+    public InstanceManager instances() { return instances; }
+    public HubItems hubItems() { return hubItems; }
+    public LeaderboardManager leaderboards() { return leaderboards; }
+    public ExtraCommands extra() { return extra; }
 }

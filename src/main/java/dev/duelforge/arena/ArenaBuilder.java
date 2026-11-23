@@ -113,6 +113,22 @@ public final class ArenaBuilder {
         return a;
     }
 
+    /** Builds an arena object for a temporary (per-match) map; it is not registered anywhere. */
+    public static Arena instantiate(String name, World w, Plan p) {
+        Arena a = new Arena(name);
+        a.worldName = w.getName();
+        a.displayName = p.display;
+        a.icon = p.icon;
+        a.p1 = p.min;
+        a.p2 = p.max;
+        a.recalc();
+        a.spawns.addAll(p.spawns);
+        a.spectator = p.spectator;
+        a.allowBuilding = true;
+        a.temporary = true;
+        return a;
+    }
+
     /** Places the blocks a few thousand per tick, then runs {@code done}. */
     public static void apply(DuelForge plugin, World w, List<Op> ops, Runnable done) {
         final int perTick = 6000;
@@ -141,11 +157,21 @@ public final class ArenaBuilder {
     // helpers
     // =====================================================================
 
+    /**
+     * 12 spawns. Index = 2*k + team for the first 8, so team 0 stands on the east side and team 1 on the west
+     * side (up to 4 per team). The last 4 (north/south) are only used by free-for-all.
+     */
     private static void cardinalSpawns(Plan p, int cx, int y, int cz, int d) {
-        p.spawns.add(new Arena.Pos(cx + 0.5 + d, y, cz + 0.5, 90f, 0f));
-        p.spawns.add(new Arena.Pos(cx + 0.5 - d, y, cz + 0.5, -90f, 0f));
-        p.spawns.add(new Arena.Pos(cx + 0.5, y, cz + 0.5 + d, 180f, 0f));
-        p.spawns.add(new Arena.Pos(cx + 0.5, y, cz + 0.5 - d, 0f, 0f));
+        int[] off = {0, 4, -4, 8};
+        for (int k = 0; k < 4; k++) {
+            p.spawns.add(new Arena.Pos(cx + 0.5 + d, y, cz + 0.5 + off[k], 90f, 0f));
+            p.spawns.add(new Arena.Pos(cx + 0.5 - d, y, cz + 0.5 - off[k], -90f, 0f));
+        }
+        int[] o2 = {0, 4};
+        for (int k = 0; k < 2; k++) {
+            p.spawns.add(new Arena.Pos(cx + 0.5 + o2[k], y, cz + 0.5 + d, 180f, 0f));
+            p.spawns.add(new Arena.Pos(cx + 0.5 - o2[k], y, cz + 0.5 - d, 0f, 0f));
+        }
     }
 
     private static void bounds(Plan p, int cx, int cz, int half, int minY, int maxY) {
@@ -310,13 +336,11 @@ public final class ArenaBuilder {
         }
         // scattered ruins (kept clear of the spawn points)
         int d = H - 4;
-        int[][] sp = {{d, 0}, {-d, 0}, {0, d}, {0, -d}};
-        int range = H - 5;
+        int range = d - 7;
         for (int i = 0; i < 16; i++) {
             int x = cx + rnd.nextInt(2 * range + 1) - range;
             int z = cz + rnd.nextInt(2 * range + 1) - range;
             boolean near = Math.abs(x - cx) < 9 && Math.abs(z - cz) < 9;
-            for (int[] s : sp) if (Math.abs(x - cx - s[0]) < 6 && Math.abs(z - cz - s[1]) < 6) near = true;
             int kind = rnd.nextInt(3);
             Material m = rnd.nextBoolean() ? Material.SANDSTONE : Material.CUT_SANDSTONE;
             if (near) continue;

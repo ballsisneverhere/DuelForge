@@ -122,6 +122,10 @@ public final class MatchListener implements Listener {
             e.setCancelled(true);
             return;
         }
+        if (attacker != null && attacker != victim && vm.sameTeam(attacker.getUniqueId(), vid)) {
+            e.setCancelled(true); // no friendly fire
+            return;
+        }
         if (e.getCause() == EntityDamageEvent.DamageCause.FALL && !vm.kit.fallDamage) {
             e.setCancelled(true);
             return;
@@ -133,8 +137,7 @@ public final class MatchListener implements Listener {
             vm.lastDamager.put(vid, realAttacker.getUniqueId());
             vm.lastDamageTime.put(vid, System.currentTimeMillis());
             Fx.sound(realAttacker, plugin.getConfig().getString("sounds.hit", ""), 0.6f, 1.4f);
-            Fx.particle(victim.getLocation().add(0, 1, 0), plugin.getConfig().getString("effects.hit.particle", "CRIT"),
-                    plugin.getConfig().getInt("effects.hit.count", 6), 0.3);
+            plugin.cosmetics().hit(realAttacker, victim.getLocation().add(0, 1, 0));
         }
 
         double hp = victim.getHealth() + victim.getAbsorptionAmount();
@@ -180,6 +183,8 @@ public final class MatchListener implements Listener {
                     && !e.isBedSpawn() && !e.isAnchorSpawn()) {
                 e.setRespawnLocation(lobby);
             }
+            Player rp = e.getPlayer();
+            Bukkit.getScheduler().runTaskLater(plugin, () -> plugin.hubItems().give(rp), 2L);
             return;
         }
         e.setRespawnLocation(m.isAlive(e.getPlayer().getUniqueId()) ? m.arena.spawn(0) : m.arena.spectatorSpawn());
@@ -538,6 +543,7 @@ public final class MatchListener implements Listener {
             if (lobby != null && plugin.getConfig().getBoolean("lobby.teleport-on-join", true) && !mm.inMatch(p.getUniqueId())) {
                 p.teleport(lobby);
             }
+            if (!mm.inMatch(p.getUniqueId())) plugin.hubItems().give(p);
         }, 3L);
     }
 

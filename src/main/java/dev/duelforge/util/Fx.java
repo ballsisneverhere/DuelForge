@@ -20,7 +20,7 @@ public final class Fx {
     private static final String[][] ALIASES = {
             {"TOTEM_OF_UNDYING", "TOTEM"}, {"SMOKE", "SMOKE_NORMAL"}, {"LARGE_SMOKE", "SMOKE_LARGE"},
             {"FIREWORK", "FIREWORKS_SPARK"}, {"HAPPY_VILLAGER", "VILLAGER_HAPPY"},
-            {"ANGRY_VILLAGER", "VILLAGER_ANGRY"}, {"EXPLOSION", "EXPLOSION_LARGE"}, {"POOF", "EXPLOSION_NORMAL"}
+            {"ANGRY_VILLAGER", "VILLAGER_ANGRY"}, {"ENCHANTED_HIT", "CRIT_MAGIC"}, {"ELECTRIC_SPARK", "CRIT_MAGIC"}, {"FLAME", "FLAME"}, {"EXPLOSION", "EXPLOSION_LARGE"}, {"POOF", "EXPLOSION_NORMAL"}
     };
 
     private Fx() {}

@@ -19,6 +19,8 @@ public final class Kit {
     public Material icon = Material.IRON_SWORD;
     public List<String> description = new ArrayList<>();
     public boolean enabled = true;
+    /** Created in-game with /duel admin kit create (stored in custom-kits.yml). */
+    public boolean custom;
     public String permission = "";
 
     public final Map<Integer, ItemStack> inventory = new LinkedHashMap<>();

@@ -65,6 +65,7 @@ public final class KitManager {
                 }
             }
         }
+        loadCustom();
         plugin.getLogger().info("Loaded " + kits.size() + " kits.");
         loadLayouts();
     }
@@ -178,6 +179,120 @@ public final class KitManager {
 
     public boolean canUse(Player p, Kit k) {
         return k.permission == null || k.permission.isEmpty() || p.hasPermission(k.permission);
+    }
+
+    // ---------- admin-made kits (custom-kits.yml) ----------
+
+    private File customFile() {
+        return new File(plugin.getDataFolder(), "custom-kits.yml");
+    }
+
+    private void loadCustom() {
+        ConfigurationSection root = YamlConfiguration.loadConfiguration(customFile()).getConfigurationSection("kits");
+        if (root == null) return;
+        for (String id : root.getKeys(false)) {
+            ConfigurationSection s = root.getConfigurationSection(id);
+            if (s == null || kits.containsKey(id.toLowerCase())) continue;
+            Kit k = new Kit(id.toLowerCase());
+            k.custom = true;
+            k.displayName = s.getString("display-name", "&f" + id);
+            Material icon = Material.matchMaterial(s.getString("icon", "IRON_SWORD"));
+            k.icon = icon != null ? icon : Material.IRON_SWORD;
+            k.description = s.getStringList("description");
+            k.enabled = s.getBoolean("enabled", true);
+            k.naturalRegen = s.getBoolean("settings.natural-regen", true);
+            k.hunger = s.getBoolean("settings.hunger", false);
+            k.fallDamage = s.getBoolean("settings.fall-damage", true);
+            k.enderPearlCooldown = s.getInt("settings.ender-pearl-cooldown", 15);
+            ConfigurationSection items = s.getConfigurationSection("items");
+            if (items != null) {
+                for (String slot : items.getKeys(false)) {
+                    ItemStack it = items.getItemStack(slot);
+                    try {
+                        int i = Integer.parseInt(slot);
+                        if (it != null && i >= 0 && i < 36) k.inventory.put(i, it);
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+            }
+            ConfigurationSection eq = s.getConfigurationSection("equipment");
+            if (eq != null) {
+                for (String name : eq.getKeys(false)) {
+                    ItemStack it = eq.getItemStack(name);
+                    if (it != null) k.equipment.put(name, it);
+                }
+            }
+            for (Map<?, ?> m : s.getMapList("effects")) {
+                PotionEffectType type = effectType(String.valueOf(m.get("type")));
+                if (type == null) continue;
+                int level = m.get("level") instanceof Number n ? n.intValue() : 1;
+                k.effects.add(new PotionEffect(type, 1_000_000, Math.max(0, level - 1), false, false, true));
+            }
+            kits.put(k.id, k);
+        }
+    }
+
+    public void saveCustom() {
+        YamlConfiguration c = new YamlConfiguration();
+        c.createSection("kits");
+        for (Kit k : kits.values()) {
+            if (!k.custom) continue;
+            String p = "kits." + k.id + ".";
+            c.set(p + "display-name", k.displayName);
+            c.set(p + "icon", k.icon.name());
+            c.set(p + "description", k.description);
+            c.set(p + "enabled", k.enabled);
+            c.set(p + "settings.natural-regen", k.naturalRegen);
+            c.set(p + "settings.hunger", k.hunger);
+            c.set(p + "settings.fall-damage", k.fallDamage);
+            c.set(p + "settings.ender-pearl-cooldown", k.enderPearlCooldown);
+            for (Map.Entry<Integer, ItemStack> e : k.inventory.entrySet()) c.set(p + "items." + e.getKey(), e.getValue());
+            for (Map.Entry<String, ItemStack> e : k.equipment.entrySet()) c.set(p + "equipment." + e.getKey(), e.getValue());
+            List<Map<String, Object>> eff = new ArrayList<>();
+            for (PotionEffect e : k.effects) {
+                Map<String, Object> m = new LinkedHashMap<>();
+                m.put("type", e.getType().getKey().getKey());
+                m.put("level", e.getAmplifier() + 1);
+                eff.add(m);
+            }
+            c.set(p + "effects", eff);
+        }
+        Persist.save(plugin, customFile(), c, true);
+    }
+
+    private boolean isHubItem(ItemStack it) {
+        return it != null && it.hasItemMeta()
+                && it.getItemMeta().getPersistentDataContainer().has(plugin.hubKey, PersistentDataType.STRING);
+    }
+
+    /** Creates a kit from the admin's current inventory, armor and off-hand. */
+    public Kit createCustom(String id, Player p) {
+        Kit k = new Kit(id.toLowerCase());
+        k.custom = true;
+        k.displayName = "&f&l" + Fmt.pretty(id);
+        for (int slot = 0; slot < 36; slot++) {
+            ItemStack it = p.getInventory().getItem(slot);
+            if (it != null && it.getType() != Material.AIR && !isHubItem(it)) k.inventory.put(slot, it.clone());
+        }
+        ItemStack[] armor = {p.getInventory().getHelmet(), p.getInventory().getChestplate(),
+                p.getInventory().getLeggings(), p.getInventory().getBoots()};
+        String[] names = {"helmet", "chestplate", "leggings", "boots"};
+        for (int i = 0; i < 4; i++) if (armor[i] != null && armor[i].getType() != Material.AIR) k.equipment.put(names[i], armor[i].clone());
+        ItemStack off = p.getInventory().getItemInOffHand();
+        if (off.getType() != Material.AIR) k.equipment.put("offhand", off.clone());
+        ItemStack hand = p.getInventory().getItemInMainHand();
+        k.icon = hand.getType() != Material.AIR ? hand.getType() : (k.inventory.isEmpty() ? Material.IRON_SWORD : k.inventory.values().iterator().next().getType());
+        kits.put(k.id, k);
+        saveCustom();
+        return k;
+    }
+
+    public boolean deleteCustom(String id) {
+        Kit k = kits.get(id.toLowerCase());
+        if (k == null || !k.custom) return false;
+        kits.remove(k.id);
+        saveCustom();
+        return true;
     }
 
     // ---------- layouts ----------

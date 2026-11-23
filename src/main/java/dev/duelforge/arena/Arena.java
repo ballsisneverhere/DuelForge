@@ -58,6 +58,8 @@ public final class Arena {
     public Pos spectator;
     public boolean enabled = true;
     public boolean allowBuilding = true;
+    /** True for per-match maps that are built on demand and wiped afterwards. */
+    public boolean temporary;
     /** The match currently reserving this arena (including block restoration). */
     public Match current;
 

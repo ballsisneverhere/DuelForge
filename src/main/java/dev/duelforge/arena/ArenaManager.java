@@ -124,7 +124,7 @@ public final class ArenaManager {
 
     // ---------- restoration ----------
 
-    private void clean(Arena a) {
+    public void clean(Arena a) {
         World w = a.world();
         if (w == null || !a.boundsSet) return;
         for (Entity e : w.getNearbyEntities(a.box())) {
@@ -165,11 +165,16 @@ public final class ArenaManager {
         }.runTaskTimer(plugin, 1L, 1L);
     }
 
-    /** Synchronous restore, used on shutdown. */
-    public void restoreNow(Match m) {
+    /** Puts every changed block back right now (between rounds). The arena stays reserved. */
+    public void restoreBlocksNow(Match m) {
         clean(m.arena);
         for (BlockState s : m.changed.values()) s.update(true, false);
         m.changed.clear();
+    }
+
+    /** Synchronous restore, used on shutdown. */
+    public void restoreNow(Match m) {
+        restoreBlocksNow(m);
         m.arena.current = null;
     }
 }

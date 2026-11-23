@@ -3,7 +3,8 @@ version: '${project.version}'
 main: dev.duelforge.DuelForge
 api-version: '1.20'
 author: DuelForge
-description: Kit-based PvP duels, free-for-all matches, ranked play, spectating and more.
+description: Kit-based PvP duels, queues, parties, free-for-all, ranked play, spectating and more.
+softdepend: [PlaceholderAPI]
 commands:
   duel:
     description: Open the duel menu or use a duel sub-command
@@ -19,6 +20,16 @@ commands:
     description: View duel statistics
     usage: /duelstats [player|top]
     aliases: [dstats]
+  queue:
+    description: Join the matchmaking queue (1v1 / 2v2 / 3v3)
+    usage: /queue [1v1|2v2|3v3] [kit] [ranked] | /queue leave
+  party:
+    description: Party commands for team duels
+    usage: /party [invite|accept|deny|leave|kick|disband|list]
+  friend:
+    description: Friends list
+    usage: /friend [add|remove|accept|deny|list]
+    aliases: [friends]
 permissions:
   duelforge.use:
     description: Use DuelForge at all

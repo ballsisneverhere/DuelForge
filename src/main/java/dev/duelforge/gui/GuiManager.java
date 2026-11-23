@@ -2,6 +2,7 @@ package dev.duelforge.gui;
 
 import dev.duelforge.DuelForge;
 import dev.duelforge.kit.Kit;
+import dev.duelforge.party.PartyManager.Party;
 import dev.duelforge.util.Fx;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -46,6 +47,10 @@ public final class GuiManager implements Listener {
         return false;
     }
 
+    private int defaultBestOf() {
+        return Math.max(1, plugin.getConfig().getInt("duel.best-of", 3));
+    }
+
     public void hub(Player p) {
         if (busy(p)) return;
         open(new Menus.Hub(plugin, p));
@@ -53,7 +58,15 @@ public final class GuiManager implements Listener {
 
     public void players(Player p) {
         if (busy(p) || !perm(p, "duelforge.duel")) return;
-        open(new Menus.PlayerPick(plugin, p));
+        open(new Menus.PlayerPick(plugin, p, plugin.messages().get("gui.players.title"), target -> duelSetup(p, target)));
+    }
+
+    public void partyInvitePicker(Player p) {
+        if (busy(p)) return;
+        open(new Menus.PlayerPick(plugin, p, plugin.messages().get("gui.party.pick-title"), target -> {
+            plugin.parties().invite(p, target);
+            party(p);
+        }));
     }
 
     public void duelSetup(Player p, Player target) {
@@ -64,8 +77,10 @@ public final class GuiManager implements Listener {
             return;
         }
         Setup s = new Setup();
+        s.type = Setup.Type.DUEL;
         s.target = target.getUniqueId();
         s.kit = def;
+        s.bestOf = defaultBestOf();
         setups.put(p.getUniqueId(), s);
         setupMenu(p, s);
     }
@@ -79,8 +94,26 @@ public final class GuiManager implements Listener {
         Kit def = plugin.kits().defaultKit();
         if (def == null) return;
         Setup s = new Setup();
-        s.ffa = true;
+        s.type = Setup.Type.FFA;
         s.kit = def;
+        setups.put(p.getUniqueId(), s);
+        setupMenu(p, s);
+    }
+
+    /** Matchmaking queue menu (1v1 / 2v2 / 3v3, ranked, kit, rounds). */
+    public void queue(Player p) {
+        if (busy(p) || !perm(p, "duelforge.duel")) return;
+        Kit def = plugin.kits().defaultKit();
+        if (def == null) {
+            plugin.messages().send(p, "kit-not-found");
+            return;
+        }
+        Setup s = new Setup();
+        s.type = Setup.Type.QUEUE;
+        s.kit = def;
+        s.bestOf = defaultBestOf();
+        Party party = plugin.parties().of(p.getUniqueId());
+        s.teamSize = party != null && party.members.size() > 1 ? Math.min(3, party.members.size()) : 1;
         setups.put(p.getUniqueId(), s);
         setupMenu(p, s);
     }
@@ -124,6 +157,20 @@ public final class GuiManager implements Listener {
     public void spectate(Player p) {
         if (busy(p) || !perm(p, "duelforge.spectate")) return;
         open(new Menus.SpectateList(plugin, p));
+    }
+
+    public void friends(Player p) {
+        if (busy(p)) return;
+        open(new ExtraMenus.FriendsMenu(plugin, p));
+    }
+
+    public void party(Player p) {
+        if (busy(p)) return;
+        open(new ExtraMenus.PartyMenu(plugin, p));
+    }
+
+    public void cosmetics(Player p) {
+        open(new ExtraMenus.CosmeticsMenu(plugin, p));
     }
 
     /** Kit chooser followed by the layout editor. */

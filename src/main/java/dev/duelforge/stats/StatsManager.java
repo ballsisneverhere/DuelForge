@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/** Persistent player statistics (stats.yml), saved atomically and asynchronously. */
+/** Persistent player statistics (stats.yml): totals, per-kit, per-season, cosmetics. */
 public final class StatsManager {
 
     public static final class PlayerStats {
@@ -23,6 +23,10 @@ public final class StatsManager {
         public String name;
         public int wins, losses, kills, deaths, killStreak, bestKillStreak, winStreak, bestWinStreak;
         public int elo, rankedWins, rankedLosses, matches;
+        public int seasonWins, seasonKills;
+        public final Map<String, Integer> kitWins = new HashMap<>();
+        public final Map<String, Integer> kitKills = new HashMap<>();
+        public String killEffect = "default", victoryEffect = "default", hitEffect = "crit";
 
         PlayerStats(UUID id, String name, int elo) {
             this.id = id;
@@ -43,6 +47,7 @@ public final class StatsManager {
     private final Map<UUID, PlayerStats> map = new HashMap<>();
     private final File file;
     private boolean dirty;
+    private int season = 1;
     private BukkitTask autosave;
 
     public StatsManager(DuelForge plugin) {
@@ -54,9 +59,14 @@ public final class StatsManager {
         return plugin.getConfig().getInt("elo.starting", 1000);
     }
 
+    public int season() {
+        return season;
+    }
+
     public void load() {
         map.clear();
         YamlConfiguration c = YamlConfiguration.loadConfiguration(file);
+        season = Math.max(1, c.getInt("season", 1));
         ConfigurationSection root = c.getConfigurationSection("players");
         if (root == null) return;
         for (String key : root.getKeys(false)) {
@@ -76,6 +86,15 @@ public final class StatsManager {
                 st.rankedWins = s.getInt("ranked-wins");
                 st.rankedLosses = s.getInt("ranked-losses");
                 st.matches = s.getInt("matches");
+                st.seasonWins = s.getInt("season-wins");
+                st.seasonKills = s.getInt("season-kills");
+                st.killEffect = s.getString("cosmetic-kill", "default");
+                st.victoryEffect = s.getString("cosmetic-victory", "default");
+                st.hitEffect = s.getString("cosmetic-hit", "crit");
+                ConfigurationSection kw = s.getConfigurationSection("kit-wins");
+                if (kw != null) for (String k : kw.getKeys(false)) st.kitWins.put(k, kw.getInt(k));
+                ConfigurationSection kk = s.getConfigurationSection("kit-kills");
+                if (kk != null) for (String k : kk.getKeys(false)) st.kitKills.put(k, kk.getInt(k));
                 map.put(id, st);
             } catch (IllegalArgumentException ignored) {
             }
@@ -114,20 +133,49 @@ public final class StatsManager {
         dirty = true;
     }
 
-    public List<PlayerStats> top(String metric, int n) {
-        Comparator<PlayerStats> cmp = switch (metric) {
-            case "kills" -> Comparator.comparingInt(s -> s.kills);
-            case "elo" -> Comparator.comparingInt(s -> s.elo);
-            default -> Comparator.comparingInt(s -> s.wins);
+    /** Value of a leaderboard metric: wins, kills, elo, season_wins, season_kills or kit:&lt;id&gt;. */
+    public int value(PlayerStats s, String metric) {
+        if (metric.startsWith("kit:")) return s.kitWins.getOrDefault(metric.substring(4), 0);
+        return switch (metric) {
+            case "kills" -> s.kills;
+            case "elo" -> s.elo;
+            case "season_wins" -> s.seasonWins;
+            case "season_kills" -> s.seasonKills;
+            default -> s.wins;
         };
+    }
+
+    public List<PlayerStats> top(String metric, int n) {
         List<PlayerStats> all = new ArrayList<>(map.values());
-        all.removeIf(s -> s.matches == 0);
-        all.sort(cmp.reversed());
+        all.removeIf(s -> s.matches == 0 || value(s, metric) <= 0 && !metric.equals("elo"));
+        all.sort(Comparator.comparingInt((PlayerStats s) -> value(s, metric)).reversed());
         return all.size() > n ? new ArrayList<>(all.subList(0, n)) : all;
+    }
+
+    public int rank(UUID id, String metric) {
+        List<PlayerStats> all = top(metric, Integer.MAX_VALUE);
+        for (int i = 0; i < all.size(); i++) if (all.get(i).id.equals(id)) return i + 1;
+        return 0;
+    }
+
+    /** Starts a new season: returns the old top 3 and resets season counters (Elo is softly reset). */
+    public List<PlayerStats> newSeason() {
+        List<PlayerStats> podium = top("season_wins", 3);
+        int base = startElo();
+        for (PlayerStats s : map.values()) {
+            s.seasonWins = 0;
+            s.seasonKills = 0;
+            s.elo = base + (s.elo - base) / 2;
+        }
+        season++;
+        dirty = true;
+        save(true);
+        return podium;
     }
 
     public void save(boolean async) {
         YamlConfiguration c = new YamlConfiguration();
+        c.set("season", season);
         for (PlayerStats s : map.values()) {
             String p = "players." + s.id + ".";
             c.set(p + "name", s.name);
@@ -143,6 +191,13 @@ public final class StatsManager {
             c.set(p + "ranked-wins", s.rankedWins);
             c.set(p + "ranked-losses", s.rankedLosses);
             c.set(p + "matches", s.matches);
+            c.set(p + "season-wins", s.seasonWins);
+            c.set(p + "season-kills", s.seasonKills);
+            c.set(p + "cosmetic-kill", s.killEffect);
+            c.set(p + "cosmetic-victory", s.victoryEffect);
+            c.set(p + "cosmetic-hit", s.hitEffect);
+            for (Map.Entry<String, Integer> e : s.kitWins.entrySet()) c.set(p + "kit-wins." + e.getKey(), e.getValue());
+            for (Map.Entry<String, Integer> e : s.kitKills.entrySet()) c.set(p + "kit-kills." + e.getKey(), e.getValue());
         }
         dirty = false;
         Persist.save(plugin, file, c, async);

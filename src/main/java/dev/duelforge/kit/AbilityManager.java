@@ -98,7 +98,7 @@ public final class AbilityManager {
 
     private boolean smoke(Player p, Match m, ConfigurationSection s) {
         double r = s.getDouble("radius", 5);
-        for (Player e : m.aliveOthers(p)) {
+        for (Player e : m.enemiesOf(p)) {
             if (e.getWorld().equals(p.getWorld()) && e.getLocation().distanceSquared(p.getLocation()) <= r * r) {
                 effect(e, "blindness", s.getInt("blind-seconds", 3), 1);
             }
@@ -112,7 +112,7 @@ public final class AbilityManager {
 
     private boolean slam(Player p, Match m, ConfigurationSection s) {
         double r = s.getDouble("radius", 5);
-        for (Player e : m.aliveOthers(p)) {
+        for (Player e : m.enemiesOf(p)) {
             if (!e.getWorld().equals(p.getWorld()) || e.getLocation().distanceSquared(p.getLocation()) > r * r) continue;
             Vector push = e.getLocation().toVector().subtract(p.getLocation().toVector()).setY(0);
             if (push.lengthSquared() < 1.0E-4) push = new Vector(1, 0, 0);
@@ -151,7 +151,7 @@ public final class AbilityManager {
         Player best = null;
         double bestDist = Double.MAX_VALUE;
         Location eye = p.getEyeLocation();
-        for (Player e : m.aliveOthers(p)) {
+        for (Player e : m.enemiesOf(p)) {
             if (!e.getWorld().equals(p.getWorld())) continue;
             Vector to = e.getEyeLocation().toVector().subtract(eye.toVector());
             double dist = to.length();

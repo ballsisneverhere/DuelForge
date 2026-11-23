@@ -3,6 +3,20 @@
 A full-featured **kit PvP / duels plugin** for **Paper and Spigot** (1.20.x, Java 17).
 Challenge friends, run free-for-alls, play ranked, spectate, edit your kit layout, and enjoy a polished GUI.
 
+## New in this version
+
+- **Auto-built maps**: every duel / queue match gets a *fresh* map (Colosseum, Sky Islands, Castle or Wasteland) built in a
+  dedicated void world and wiped afterwards - no arena setup needed (`matches.auto-build` in `config.yml`).
+- **Queue**: `/queue 1v1 classic ranked`, `/queue 2v2`, `/queue 3v3` (or the nether-star hotbar item). Ranked 1v1 uses an Elo window that widens over time.
+- **Teams & parties**: `/party invite <player>`, then queue as a party or challenge another party leader (2v2 / 3v3), friendly fire off.
+- **Best-of rounds**: duels default to best-of-3 (1 / 3 / 5 in the setup menu), arena restored between rounds.
+- **Hub hotbar items**: compass = menu, nether star = queue, sword = FFA, book = stats, ender chest = cosmetics, head = friends, name tag = party.
+- **Friends**: `/friend add|remove|accept|list` + a friends menu with one-click duels and party invites.
+- **Cosmetics**: pick your own kill effect, victory fireworks and hit particles (all defined in `config.yml`).
+- **Kit creator**: set up your inventory and run `/duel admin kit create <id>`.
+- **Leaderboard holograms**: `/duel admin board create <wins|kills|elo|season_wins|season_kills|kit:<id>>`, plus seasons (`/duel admin season new confirm`).
+- **PlaceholderAPI** (optional): `%duelforge_wins%`, `%duelforge_elo%`, `%duelforge_top_wins_1_name%` ... (see `DuelForgeExpansion`).
+
 ## Features
 
 | Area | What you get |
@@ -81,6 +95,12 @@ Build any single map wherever you stand (the floor is the block under your feet;
 | `/duel admin setlobby`, `build`, `world <create\|tp\|list> [name] [void\|flat]`, `end [player]`, `resetstats <player>` | Misc admin |
 | `/duel admin autosetup`, `arena generate <theme> [name]` | Auto-build the PvP world / a single map |
 | `/duel lobby` | Teleport to the lobby |
+| `/queue [1v1\|2v2\|3v3] [kit] [ranked] [bo1\|bo3\|bo5]`, `/queue leave` | Matchmaking queue |
+| `/party <invite\|accept\|deny\|leave\|kick\|disband\|list>` | Parties for team duels |
+| `/friend <add\|remove\|accept\|deny\|list>` | Friends list |
+| `/duel cosmetics` | Cosmetics menu |
+| `/duel admin kit <create\|delete\|icon\|name\|desc\|setting\|list> <id>` | Make kits in-game |
+| `/duel admin board <create\|remove\|refresh> [metric]`, `season new confirm` | Leaderboard holograms and seasons |
 
 ## Permissions
 

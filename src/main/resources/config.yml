@@ -19,7 +19,9 @@ duel:
   request-timeout: 30     # seconds before a duel request expires
   countdown: 5
   end-delay: 6            # seconds between match end and teleport back
-  time-limit: 600         # seconds, 0 = unlimited (most kills wins on timeout)
+  time-limit: 600         # per round, seconds, 0 = unlimited (more survivors wins the round on timeout)
+  best-of: 3              # default rounds per duel: 1, 3 or 5 (players can change it in the setup menu)
+  round-countdown: 3
   lives: 1
   ranked-enabled: true
 
@@ -73,17 +75,56 @@ sounds:                   # vanilla sound ids, empty = disabled
   gui-click: "ui.button.click"
   error: "entity.villager.no"
 
-effects:
+# Per-match maps. When auto-build is on, every duel / queue match gets a FRESH map built in a dedicated void world
+# (a random theme from the list) and wiped again afterwards. Players can still pick one of your own saved arenas.
+matches:
+  auto-build: true
+  world: duelforge_matches
+  themes: [colosseum, sky, castle, wasteland]
+  max-instances: 16       # matches that can run at the same time with auto-built maps
+  slot-spacing: 160
+
+party:
+  max-size: 3
+
+leaderboards:
+  refresh-seconds: 30
+
+# Hotbar items given in the lobby. action: menu | queue | ffa | stats | cosmetics | friends | party | kits | editor | spectate | duel
+hub-items:
+  enabled: true
+  clear-inventory: true
+  items:
+    - {slot: 0, item: COMPASS, name: "&a&lDuel Menu &7(Right-click)", lore: ["&7Challenge friends, kits and more."], action: menu}
+    - {slot: 1, item: NETHER_STAR, name: "&b&lQueue &7(Right-click)", lore: ["&7Find a 1v1, 2v2 or 3v3 match."], action: queue}
+    - {slot: 2, item: IRON_SWORD, name: "&c&lFree-For-All &7(Right-click)", lore: ["&7Join or host a free-for-all."], action: ffa}
+    - {slot: 4, item: BOOK, name: "&e&lStats &7(Right-click)", lore: ["&7Your stats and the leaderboard."], action: stats}
+    - {slot: 6, item: ENDER_CHEST, name: "&d&lCosmetics &7(Right-click)", lore: ["&7Kill effects, fireworks, hit particles."], action: cosmetics}
+    - {slot: 7, item: PLAYER_HEAD, name: "&a&lFriends &7(Right-click)", lore: ["&7Your friends list."], action: friends}
+    - {slot: 8, item: NAME_TAG, name: "&6&lParty &7(Right-click)", lore: ["&7Group up for 2v2 / 3v3."], action: party}
+
+# Player-selectable cosmetics (shown in the Cosmetics menu, max 7 per row). Add "permission: your.node" to lock one.
+cosmetics:
   kill:
-    particle: TOTEM_OF_UNDYING   # modern or legacy names both work
-    count: 35
-    lightning: false             # harmless visual lightning at the victim
-  hit:
-    particle: CRIT
-    count: 6
+    default: {name: "&fDefault", icon: TOTEM_OF_UNDYING, particle: TOTEM_OF_UNDYING, count: 35}
+    lightning: {name: "&eLightning Strike", icon: LIGHTNING_ROD, particle: ELECTRIC_SPARK, count: 30, lightning: true}
+    hearts: {name: "&cHeart Burst", icon: RED_DYE, particle: HEART, count: 15}
+    flames: {name: "&6Inferno", icon: BLAZE_POWDER, particle: FLAME, count: 60}
+    smoke: {name: "&8Shadow Smoke", icon: COAL, particle: LARGE_SMOKE, count: 40}
+    notes: {name: "&dMusic", icon: NOTE_BLOCK, particle: NOTE, count: 20}
   victory:
-    fireworks: 6
-    colors: ["#FFD700", "#FF4500", "#00BFFF", "#7CFC00"]
+    default: {name: "&fClassic Fireworks", icon: FIREWORK_ROCKET, fireworks: 6, colors: ["#FFD700", "#FF4500", "#00BFFF", "#7CFC00"]}
+    gold: {name: "&6Golden Show", icon: GOLD_INGOT, fireworks: 10, colors: ["#FFD700", "#FFA500", "#FFFFFF"]}
+    ice: {name: "&bIce Show", icon: BLUE_ICE, fireworks: 10, colors: ["#00FFFF", "#FFFFFF", "#4169E1"]}
+    rainbow: {name: "&dRainbow Show", icon: LIME_DYE, fireworks: 14, colors: ["#FF0000", "#FFA500", "#FFFF00", "#00FF00", "#0000FF", "#8B00FF"]}
+    none: {name: "&7No fireworks", icon: BARRIER, fireworks: 0, colors: []}
+  hit:
+    crit: {name: "&fCritical", icon: IRON_SWORD, particle: CRIT, count: 6}
+    hearts: {name: "&cHearts", icon: RED_DYE, particle: HEART, count: 3}
+    flame: {name: "&6Flames", icon: BLAZE_POWDER, particle: FLAME, count: 6}
+    smoke: {name: "&8Smoke", icon: COAL, particle: LARGE_SMOKE, count: 4}
+    magic: {name: "&bEnchant", icon: ENCHANTED_BOOK, particle: ENCHANTED_HIT, count: 10}
+    none: {name: "&7None", icon: BARRIER, particle: none, count: 0}
 
 # Kit abilities (items with `ability: <id>` in kits.yml). Names, cooldowns and values are all editable.
 abilities:
