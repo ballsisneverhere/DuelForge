@@ -37,6 +37,7 @@ public final class Menus {
         lore.add(ms.get("gui.kits.regen", "value", ms.get(k.naturalRegen ? "gui.kits.yes" : "gui.kits.no")));
         lore.add(ms.get("gui.kits.hunger", "value", ms.get(k.hunger ? "gui.kits.yes" : "gui.kits.no")));
         lore.add(ms.get("gui.kits.fall", "value", ms.get(k.fallDamage ? "gui.kits.yes" : "gui.kits.no")));
+        lore.add(ms.get(k.abilities ? "gui.kits.abilities-yes" : "gui.kits.abilities-no"));
         for (PotionEffect e : k.effects) {
             lore.add(ms.get("gui.kits.effect", "effect", Fmt.pretty(e.getType().getKey().getKey()), "level", e.getAmplifier() + 1));
         }

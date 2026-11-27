@@ -20,7 +20,10 @@ public final class ArenaBuilder {
         COLOSSEUM("&6&lColosseum", Material.STONE_BRICKS),
         SKY("&b&lSky Islands", Material.GRASS_BLOCK),
         CASTLE("&7&lCastle", Material.CRACKED_STONE_BRICKS),
-        WASTELAND("&e&lWasteland", Material.SANDSTONE);
+        WASTELAND("&e&lWasteland", Material.SANDSTONE),
+        NETHER("&4&lNether Bastion", Material.POLISHED_BLACKSTONE_BRICKS),
+        FROZEN("&b&lFrozen Lake", Material.PACKED_ICE),
+        SUMO("&f&lSumo Ring", Material.QUARTZ_BLOCK);
 
         public final String display;
         public final Material icon;
@@ -92,6 +95,9 @@ public final class ArenaBuilder {
             case SKY -> sky(cx, y0, cz, clear);
             case CASTLE -> castle(cx, y0, cz, clear);
             case WASTELAND -> wasteland(cx, y0, cz, clear);
+            case NETHER -> nether(cx, y0, cz, clear);
+            case FROZEN -> frozen(cx, y0, cz, clear);
+            case SUMO -> sumo(cx, y0, cz, clear);
         };
         p.display = t.display;
         p.icon = t.icon;
@@ -361,6 +367,90 @@ public final class ArenaBuilder {
         bounds(p, cx, cz, B, y0 - 6, y0 + 30);
         cardinalSpawns(p, cx, y0 + 1, cz, H - 4);
         p.spectator = new Arena.Pos(cx + 0.5, y0 + 14, cz + 0.5, 0f, 45f);
+        return p;
+    }
+
+    /** Blackstone bastion with gilded floor, lava pits in the corners and cover pillars. */
+    private static Plan nether(int cx, int y0, int cz, boolean clear) {
+        Plan p = new Plan();
+        Canvas c = new Canvas(p.ops);
+        final int H = 20, B = H + 3;
+        if (clear) c.box(cx - B, y0 + 1, cz - B, cx + B, y0 + 22, cz + B, Material.AIR);
+        c.box(cx - B, y0 - 3, cz - B, cx + B, y0 - 1, cz + B, Material.NETHER_BRICKS);
+        c.box(cx - B, y0, cz - B, cx + B, y0, cz + B, Material.POLISHED_BLACKSTONE_BRICKS);
+        for (int x = cx - H; x <= cx + H; x++)
+            for (int z = cz - H; z <= cz + H; z++) {
+                if (Math.floorMod(x + z, 4) == 0) c.set(x, y0, z, Material.CRACKED_POLISHED_BLACKSTONE_BRICKS);
+                else if (Math.floorMod(x * 5 + z * 7, 13) == 0) c.set(x, y0, z, Material.GILDED_BLACKSTONE);
+                else if (Math.floorMod(x * 3 + z, 9) == 0) c.set(x, y0, z, Material.BLACKSTONE);
+            }
+        c.cyl(cx, cz, 3.5, y0, y0, Material.SOUL_SOIL);
+        // walls (thickness 3) with red battlements
+        c.box(cx - B, y0 + 1, cz - B, cx + B, y0 + 9, cz - H - 1, Material.NETHER_BRICKS);
+        c.box(cx - B, y0 + 1, cz + H + 1, cx + B, y0 + 9, cz + B, Material.NETHER_BRICKS);
+        c.box(cx - B, y0 + 1, cz - H, cx - H - 1, y0 + 9, cz + H, Material.NETHER_BRICKS);
+        c.box(cx + H + 1, y0 + 1, cz - H, cx + B, y0 + 9, cz + H, Material.NETHER_BRICKS);
+        for (int x = cx - B; x <= cx + B; x++)
+            for (int z = cz - B; z <= cz + B; z++) {
+                boolean inWall = Math.abs(x - cx) > H || Math.abs(z - cz) > H;
+                if (inWall && Math.floorMod(x + z, 2) == 0) c.set(x, y0 + 10, z, Material.RED_NETHER_BRICKS);
+            }
+        c.box(cx + H, y0 + 1, cz - 2, cx + B, y0 + 6, cz + 2, Material.AIR);
+        c.box(cx - B, y0 + 1, cz - 2, cx - H, y0 + 6, cz + 2, Material.AIR);
+        c.box(cx - 2, y0 + 1, cz + H, cx + 2, y0 + 6, cz + B, Material.AIR);
+        c.box(cx - 2, y0 + 1, cz - B, cx + 2, y0 + 6, cz - H, Material.AIR);
+        // lava pits and pillars
+        for (int sx = -1; sx <= 1; sx += 2)
+            for (int sz = -1; sz <= 1; sz += 2) {
+                c.box(cx + sx * 12, y0 - 1, cz + sz * 12, cx + sx * 12 + 1, y0, cz + sz * 12 + 1, Material.LAVA);
+                int px = cx + sx * 6, pz = cz + sz * 6;
+                c.box(px, y0 + 1, pz, px, y0 + 6, pz, Material.POLISHED_BLACKSTONE);
+                c.set(px, y0 + 7, pz, Material.SHROOMLIGHT);
+            }
+        bounds(p, cx, cz, B, y0 - 6, y0 + 30);
+        cardinalSpawns(p, cx, y0 + 1, cz, H - 4);
+        p.spectator = new Arena.Pos(cx + 0.5, y0 + 14, cz + 0.5, 0f, 45f);
+        return p;
+    }
+
+    /** Circular ice lake: slippery blue ice in the middle, snowy rim, ice pillars for cover. */
+    private static Plan frozen(int cx, int y0, int cz, boolean clear) {
+        Plan p = new Plan();
+        Canvas c = new Canvas(p.ops);
+        final int R = 24, B = R + 2;
+        if (clear) c.box(cx - B, y0 + 1, cz - B, cx + B, y0 + 22, cz + B, Material.AIR);
+        c.cyl(cx, cz, R, y0 - 3, y0 - 1, Material.PACKED_ICE);
+        c.cyl(cx, cz, R, y0, y0, Material.PACKED_ICE);
+        c.cyl(cx, cz, 10, y0, y0, Material.BLUE_ICE);
+        c.ring(cx, cz, R, R - 3, y0, y0, Material.SNOW_BLOCK);
+        c.ring(cx, cz, R + 0.5, R - 1.0, y0 + 1, y0 + 2, Material.SNOW_BLOCK);
+        Random rnd = new Random(cx * 13L + cz * 29L + 3L);
+        for (int i = 0; i < 12; i++) {
+            double ang = rnd.nextDouble() * Math.PI * 2;
+            double rad = 6 + rnd.nextDouble() * 10;
+            int x = cx + (int) Math.round(rad * Math.cos(ang));
+            int z = cz + (int) Math.round(rad * Math.sin(ang));
+            int h = 3 + rnd.nextInt(4);
+            c.box(x, y0 + 1, z, x + 1, y0 + h, z + 1, rnd.nextBoolean() ? Material.PACKED_ICE : Material.BLUE_ICE);
+        }
+        bounds(p, cx, cz, B, y0 - 6, y0 + 30);
+        cardinalSpawns(p, cx, y0 + 1, cz, R - 6);
+        p.spectator = new Arena.Pos(cx + 0.5, y0 + 14, cz + 0.5, 0f, 45f);
+        return p;
+    }
+
+    /** Small floating ring over the void: knock your opponent off. */
+    private static Plan sumo(int cx, int y0, int cz, boolean clear) {
+        Plan p = new Plan();
+        Canvas c = new Canvas(p.ops);
+        final int R = 14, B = 22;
+        if (clear) c.box(cx - B, y0 - 12, cz - B, cx + B, y0 + 30, cz + B, Material.AIR);
+        c.cyl(cx, cz, R, y0 - 1, y0, Material.QUARTZ_BLOCK);
+        c.ring(cx, cz, R + 0.5, R - 1.5, y0, y0, Material.ORANGE_CONCRETE);
+        c.cyl(cx, cz, 3, y0, y0, Material.BLACK_CONCRETE);
+        bounds(p, cx, cz, B, y0 - 14, y0 + 20);
+        cardinalSpawns(p, cx, y0 + 1, cz, 9);
+        p.spectator = new Arena.Pos(cx + 0.5, y0 + 10, cz + 0.5, 0f, 45f);
         return p;
     }
 

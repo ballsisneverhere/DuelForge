@@ -3,8 +3,10 @@
 #        helmet / chestplate / leggings / boots / offhand = fixed equipment.
 # Item keys: item, amount, name, lore, enchants {name: level}, unbreakable, color "#RRGGBB" (leather),
 #            ability <id from config.yml abilities>, potion {effect, seconds, level}
+# Kit keys:  themes [colosseum, sky, castle, wasteland, nether, frozen, sumo] - restrict auto-built maps for this kit
 # Enchant / effect names use vanilla ids (sharpness, fire_aspect, speed, slowness, instant_health ...).
-unbreakable-items: true
+# Tools and armor have durability (they can break). Set this to true to make everything unbreakable.
+unbreakable-items: false
 
 kits:
   classic:
@@ -15,128 +17,755 @@ kits:
       - "&7Diamond gear, a bow and golden apples."
     settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 15}
     items:
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1}}
       - {slot: 0, item: DIAMOND_SWORD, enchants: {sharpness: 1}}
       - {slot: 1, item: BOW}
       - {slot: 2, item: GOLDEN_APPLE, amount: 6}
       - {slot: 3, item: FISHING_ROD}
-      - {slot: 8, item: ARROW, amount: 24}
+      - {slot: 8, item: ARROW, amount: 32}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1}}
 
   uhc:
     display-name: "&6&lUHC"
     icon: GOLDEN_APPLE
     description:
-      - "&7No natural regeneration."
-      - "&7Heal only with golden apples and heads."
+      - "&7No natural regeneration - heal with golden"
+      - "&7apples and heads. 3 water + 3 lava buckets."
     settings: {natural-regen: false, hunger: true, fall-damage: true, ender-pearl-cooldown: 15}
     items:
-      - {slot: helmet, item: IRON_HELMET, enchants: {protection: 2}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE}
-      - {slot: leggings, item: IRON_LEGGINGS, enchants: {protection: 2}}
-      - {slot: boots, item: DIAMOND_BOOTS}
-      - {slot: 0, item: DIAMOND_SWORD}
-      - {slot: 1, item: BOW}
-      - {slot: 2, item: GOLDEN_APPLE, amount: 3}
-      - {slot: 3, item: PLAYER_HEAD, amount: 2, ability: golden_head}
-      - {slot: 4, item: WATER_BUCKET}
-      - {slot: 5, item: COBBLESTONE, amount: 48}
-      - {slot: 6, item: COOKED_BEEF, amount: 16}
-      - {slot: 8, item: ARROW, amount: 20}
+      - {slot: 0, item: DIAMOND_SWORD, enchants: {sharpness: 3}}
+      - {slot: 1, item: BOW, enchants: {power: 3}}
+      - {slot: 2, item: FISHING_ROD}
+      - {slot: 3, item: GOLDEN_APPLE, amount: 6}
+      - {slot: 4, item: PLAYER_HEAD, amount: 3, ability: golden_head}
+      - {slot: 5, item: WATER_BUCKET}
+      - {slot: 6, item: LAVA_BUCKET}
+      - {slot: 7, item: COBBLESTONE, amount: 64}
+      - {slot: 8, item: COOKED_BEEF, amount: 32}
+      - {slot: 9, item: WATER_BUCKET}
+      - {slot: 10, item: WATER_BUCKET}
+      - {slot: 11, item: LAVA_BUCKET}
+      - {slot: 12, item: LAVA_BUCKET}
+      - {slot: 13, item: DIAMOND_AXE}
+      - {slot: 14, item: DIAMOND_PICKAXE}
+      - {slot: 15, item: OAK_PLANKS, amount: 64}
+      - {slot: 16, item: COBWEB, amount: 8}
+      - {slot: 17, item: ARROW, amount: 48}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {projectile_protection: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {projectile_protection: 2}}
 
   op:
     display-name: "&c&lOP"
     icon: NETHERITE_SWORD
     description:
-      - "&7Overpowered netherite gear."
-      - "&7Includes a lightning wand."
-    settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 8}
+      - "&7Strong but fair: enchanted diamond gear,"
+      - "&7enchanted apples and a nerfed lightning wand."
+    settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 12}
     items:
-      - {slot: helmet, item: NETHERITE_HELMET, enchants: {protection: 4, unbreaking: 3}}
-      - {slot: chestplate, item: NETHERITE_CHESTPLATE, enchants: {protection: 4, unbreaking: 3}}
-      - {slot: leggings, item: NETHERITE_LEGGINGS, enchants: {protection: 4, unbreaking: 3}}
-      - {slot: boots, item: NETHERITE_BOOTS, enchants: {protection: 4, unbreaking: 3, feather_falling: 4}}
-      - {slot: 0, item: NETHERITE_SWORD, enchants: {sharpness: 5, fire_aspect: 2, knockback: 1}}
-      - {slot: 1, item: BOW, enchants: {power: 5, punch: 2, infinity: 1}}
-      - {slot: 2, item: ENCHANTED_GOLDEN_APPLE, amount: 4}
-      - {slot: 3, item: NETHERITE_AXE, enchants: {sharpness: 5}}
+      - {slot: 0, item: DIAMOND_SWORD, enchants: {sharpness: 3, unbreaking: 3}}
+      - {slot: 1, item: BOW, enchants: {power: 3, punch: 1, unbreaking: 3}}
+      - {slot: 2, item: ENCHANTED_GOLDEN_APPLE, amount: 2}
+      - {slot: 3, item: GOLDEN_APPLE, amount: 8}
       - {slot: 4, item: ENDER_PEARL, amount: 4}
       - {slot: 5, item: BLAZE_ROD, ability: thunder}
-      - {slot: 6, item: SPLASH_POTION, amount: 3, name: "&dHealing Splash", potion: {effect: instant_health, seconds: 1, level: 2}}
-      - {slot: 7, item: GOLDEN_APPLE, amount: 16}
-      - {slot: 9, item: ARROW}
+      - {slot: 6, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 7, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 8, item: ARROW, amount: 24}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 3, unbreaking: 3}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 3, unbreaking: 3}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 3, unbreaking: 3}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 3, unbreaking: 3, feather_falling: 3}}
 
   archer:
     display-name: "&a&lArcher"
     icon: BOW
     description:
-      - "&7Fight from range with a powerful bow."
+      - "&7Fight from range with a strong bow."
       - "&7Use Leap to get away and keep shooting."
     settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 15}
     items:
-      - {slot: helmet, item: LEATHER_HELMET, color: "#2E8B57", enchants: {protection: 2}}
-      - {slot: chestplate, item: CHAINMAIL_CHESTPLATE, enchants: {protection: 1}}
-      - {slot: leggings, item: LEATHER_LEGGINGS, color: "#2E8B57", enchants: {protection: 2}}
-      - {slot: boots, item: LEATHER_BOOTS, color: "#2E8B57", enchants: {protection: 2, feather_falling: 3}}
       - {slot: 0, item: BOW, enchants: {power: 3, punch: 1, infinity: 1}}
       - {slot: 1, item: IRON_SWORD}
       - {slot: 2, item: GOLDEN_APPLE, amount: 4}
       - {slot: 3, item: RABBIT_FOOT, ability: leap}
       - {slot: 9, item: ARROW}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1, feather_falling: 2}}
 
   tank:
     display-name: "&9&lTank"
-    icon: NETHERITE_CHESTPLATE
+    icon: DIAMOND_CHESTPLATE
     description:
-      - "&7Heavy armor and a shield."
-      - "&7Slower, but very durable. Slam the ground to push enemies away."
+      - "&7Heavy armor and a shield. Slower, very durable."
+      - "&7Ground Slam pushes enemies away."
+    settings: {natural-regen: true, hunger: false, fall-damage: false, ender-pearl-cooldown: 20}
     effects:
       - {type: slowness, level: 1}
-    settings: {natural-regen: true, hunger: false, fall-damage: false, ender-pearl-cooldown: 20}
     items:
-      - {slot: helmet, item: NETHERITE_HELMET, enchants: {protection: 3}}
-      - {slot: chestplate, item: NETHERITE_CHESTPLATE, enchants: {protection: 4}}
-      - {slot: leggings, item: NETHERITE_LEGGINGS, enchants: {protection: 4}}
-      - {slot: boots, item: NETHERITE_BOOTS, enchants: {protection: 3}}
-      - {slot: offhand, item: SHIELD}
-      - {slot: 0, item: IRON_SWORD, enchants: {sharpness: 1}}
+      - {slot: 0, item: DIAMOND_SWORD}
       - {slot: 1, item: ANVIL, ability: slam}
       - {slot: 2, item: GOLDEN_APPLE, amount: 4}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 3}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 3}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2}}
+      - {slot: offhand, item: SHIELD}
 
   ninja:
     display-name: "&8&lNinja"
     icon: ENDER_EYE
     description:
-      - "&7Fast, light and deadly."
-      - "&7Dash through enemies and vanish in smoke."
-    effects:
-      - {type: speed, level: 2}
+      - "&7Fast and light. Dash through enemies"
+      - "&7and vanish in a smoke bomb."
     settings: {natural-regen: true, hunger: false, fall-damage: false, ender-pearl-cooldown: 15}
+    effects:
+      - {type: speed, level: 1}
     items:
-      - {slot: helmet, item: LEATHER_HELMET, color: "#111111", enchants: {protection: 1}}
-      - {slot: chestplate, item: LEATHER_CHESTPLATE, color: "#111111", enchants: {protection: 1}}
-      - {slot: leggings, item: LEATHER_LEGGINGS, color: "#111111", enchants: {protection: 1}}
-      - {slot: boots, item: LEATHER_BOOTS, color: "#111111", enchants: {protection: 1, feather_falling: 4}}
-      - {slot: 0, item: IRON_SWORD, enchants: {sharpness: 2}}
+      - {slot: 0, item: IRON_SWORD, enchants: {sharpness: 1}}
       - {slot: 1, item: FEATHER, ability: dash}
       - {slot: 2, item: INK_SAC, ability: smoke_bomb}
       - {slot: 3, item: GOLDEN_APPLE, amount: 3}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1, feather_falling: 4}}
 
   axe:
     display-name: "&4&lAxe"
     icon: DIAMOND_AXE
     description:
-      - "&7Heavy axe strikes, shield to defend."
-      - "&7Berserk grants a burst of strength."
+      - "&7Heavy axe strikes with a shield."
+      - "&7Berserk gives a short burst of strength."
     settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 15}
     items:
-      - {slot: helmet, item: IRON_HELMET, enchants: {protection: 2}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE}
-      - {slot: leggings, item: IRON_LEGGINGS, enchants: {protection: 2}}
-      - {slot: boots, item: IRON_BOOTS, enchants: {protection: 2}}
-      - {slot: offhand, item: SHIELD}
-      - {slot: 0, item: DIAMOND_AXE, enchants: {sharpness: 3, efficiency: 2}}
+      - {slot: 0, item: DIAMOND_AXE, enchants: {sharpness: 2}}
       - {slot: 1, item: BLAZE_POWDER, ability: berserk}
       - {slot: 2, item: GOLDEN_APPLE, amount: 4}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2}}
+      - {slot: offhand, item: SHIELD}
+
+  balls:
+    display-name: "&e&lBalls"
+    icon: ENCHANTED_GOLDEN_APPLE
+    description:
+      - "&7Iron sword (Sharpness V), 10 enchanted golden"
+      - "&7apples and full Netherite (Protection IV)."
+    settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 15}
+    items:
+      - {slot: 0, item: IRON_SWORD, enchants: {sharpness: 5}}
+      - {slot: 1, item: ENCHANTED_GOLDEN_APPLE, amount: 10}
+      - {slot: helmet, item: NETHERITE_HELMET, enchants: {protection: 4}}
+      - {slot: chestplate, item: NETHERITE_CHESTPLATE, enchants: {protection: 4}}
+      - {slot: leggings, item: NETHERITE_LEGGINGS, enchants: {protection: 4}}
+      - {slot: boots, item: NETHERITE_BOOTS, enchants: {protection: 4}}
+
+  vanilla:
+    display-name: "&f&lVanilla"
+    icon: IRON_AXE
+    description:
+      - "&7Normal Minecraft PvP - NO abilities."
+      - "&7Plain diamond gear, shield, bow and food."
+    settings: {natural-regen: true, hunger: true, fall-damage: true, ender-pearl-cooldown: 15}
+    items:
+      - {slot: 0, item: DIAMOND_SWORD}
+      - {slot: 1, item: BOW}
+      - {slot: 2, item: GOLDEN_APPLE, amount: 4}
+      - {slot: 3, item: COOKED_BEEF, amount: 32}
+      - {slot: 8, item: ARROW, amount: 32}
+      - {slot: helmet, item: DIAMOND_HELMET}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE}
+      - {slot: leggings, item: DIAMOND_LEGGINGS}
+      - {slot: boots, item: DIAMOND_BOOTS}
+      - {slot: offhand, item: SHIELD}
+
+  nodebuff:
+    display-name: "&d&lNoDebuff"
+    icon: SPLASH_POTION
+    description:
+      - "&7Pure potion PvP: 28 splash healing II,"
+      - "&7speed potions, pearls and steak."
+    settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 15}
+    items:
+      - {slot: 0, item: DIAMOND_SWORD, enchants: {sharpness: 1, unbreaking: 3}}
+      - {slot: 1, item: ENDER_PEARL, amount: 16}
+      - {slot: 2, item: COOKED_BEEF, amount: 64}
+      - {slot: 3, item: POTION, name: "&6Fire Resistance (8:00)", potion: {effect: fire_resistance, seconds: 480, level: 1}}
+      - {slot: 4, item: POTION, name: "&bSpeed II (1:30)", potion: {effect: speed, seconds: 90, level: 2}}
+      - {slot: 5, item: POTION, name: "&bSpeed II (1:30)", potion: {effect: speed, seconds: 90, level: 2}}
+      - {slot: 6, item: POTION, name: "&bSpeed II (1:30)", potion: {effect: speed, seconds: 90, level: 2}}
+      - {slot: 7, item: POTION, name: "&bSpeed II (1:30)", potion: {effect: speed, seconds: 90, level: 2}}
+      - {slot: 8, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 9, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 10, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 11, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 12, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 13, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 14, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 15, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 16, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 17, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 18, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 19, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 20, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 21, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 22, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 23, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 24, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 25, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 26, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 27, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 28, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 29, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 30, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 31, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 32, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 33, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 34, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 35, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1, unbreaking: 3}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1, unbreaking: 3}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1, unbreaking: 3}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1, unbreaking: 3, feather_falling: 4}}
+
+  debuff:
+    display-name: "&5&lDebuff"
+    icon: FERMENTED_SPIDER_EYE
+    description:
+      - "&7NoDebuff plus splash slowness and poison."
+      - "&724 healing potions, 4 speed, pearls."
+    settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 15}
+    items:
+      - {slot: 0, item: DIAMOND_SWORD, enchants: {sharpness: 1, unbreaking: 3}}
+      - {slot: 1, item: ENDER_PEARL, amount: 16}
+      - {slot: 2, item: COOKED_BEEF, amount: 64}
+      - {slot: 3, item: POTION, name: "&6Fire Resistance (8:00)", potion: {effect: fire_resistance, seconds: 480, level: 1}}
+      - {slot: 4, item: POTION, name: "&bSpeed II (1:30)", potion: {effect: speed, seconds: 90, level: 2}}
+      - {slot: 5, item: POTION, name: "&bSpeed II (1:30)", potion: {effect: speed, seconds: 90, level: 2}}
+      - {slot: 6, item: POTION, name: "&bSpeed II (1:30)", potion: {effect: speed, seconds: 90, level: 2}}
+      - {slot: 7, item: POTION, name: "&bSpeed II (1:30)", potion: {effect: speed, seconds: 90, level: 2}}
+      - {slot: 8, item: SPLASH_POTION, name: "&8Splash Slowness (1:07)", potion: {effect: slowness, seconds: 67, level: 1}}
+      - {slot: 9, item: SPLASH_POTION, name: "&8Splash Slowness (1:07)", potion: {effect: slowness, seconds: 67, level: 1}}
+      - {slot: 10, item: SPLASH_POTION, name: "&2Splash Poison (0:33)", potion: {effect: poison, seconds: 33, level: 1}}
+      - {slot: 11, item: SPLASH_POTION, name: "&2Splash Poison (0:33)", potion: {effect: poison, seconds: 33, level: 1}}
+      - {slot: 12, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 13, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 14, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 15, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 16, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 17, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 18, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 19, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 20, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 21, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 22, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 23, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 24, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 25, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 26, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 27, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 28, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 29, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 30, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 31, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 32, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 33, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 34, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 35, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1, unbreaking: 3}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1, unbreaking: 3}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1, unbreaking: 3}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1, unbreaking: 3, feather_falling: 4}}
+
+  pot:
+    display-name: "&c&lPot PvP"
+    icon: POTION
+    description:
+      - "&7Enchanted gear, buff potions and 20 healing"
+      - "&7splash potions. Manage your inventory!"
+    settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 15}
+    items:
+      - {slot: 0, item: DIAMOND_SWORD, enchants: {sharpness: 3, unbreaking: 3}}
+      - {slot: 1, item: BOW, enchants: {power: 3, punch: 1}}
+      - {slot: 2, item: COOKED_BEEF, amount: 20}
+      - {slot: 3, item: POTION, name: "&cStrength II (1:30)", potion: {effect: strength, seconds: 90, level: 2}}
+      - {slot: 4, item: POTION, name: "&cStrength II (1:30)", potion: {effect: strength, seconds: 90, level: 2}}
+      - {slot: 5, item: POTION, name: "&bSpeed II (1:30)", potion: {effect: speed, seconds: 90, level: 2}}
+      - {slot: 6, item: POTION, name: "&bSpeed II (1:30)", potion: {effect: speed, seconds: 90, level: 2}}
+      - {slot: 7, item: POTION, name: "&dRegeneration (1:30)", potion: {effect: regeneration, seconds: 90, level: 1}}
+      - {slot: 8, item: POTION, name: "&dRegeneration (1:30)", potion: {effect: regeneration, seconds: 90, level: 1}}
+      - {slot: 9, item: ARROW, amount: 16}
+      - {slot: 10, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 11, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 12, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 13, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 14, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 15, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 16, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 17, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 18, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 19, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 20, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 21, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 22, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 23, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 24, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 25, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 26, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 27, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 28, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 29, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 3, unbreaking: 3}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 3, unbreaking: 3}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 3, unbreaking: 3}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 3, unbreaking: 3}}
+
+  gapple:
+    display-name: "&6&lGapple"
+    icon: ENCHANTED_GOLDEN_APPLE
+    description:
+      - "&7Sustain fight: lots of golden apples with"
+      - "&7Speed I and Strength I."
+    settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 15}
+    effects:
+      - {type: speed, level: 1}
+      - {type: strength, level: 1}
+    items:
+      - {slot: 0, item: DIAMOND_SWORD, enchants: {sharpness: 3, unbreaking: 3}}
+      - {slot: 1, item: GOLDEN_APPLE, amount: 16}
+      - {slot: 2, item: ENCHANTED_GOLDEN_APPLE, amount: 4}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2, unbreaking: 3}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2, unbreaking: 3}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2, unbreaking: 3}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2, unbreaking: 3}}
+
+  soup:
+    display-name: "&e&lSoup"
+    icon: MUSHROOM_STEW
+    description:
+      - "&7Right-click soup to heal a little."
+      - "&720 bowls, Speed I, light gear."
+    settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 15}
+    effects:
+      - {type: speed, level: 1}
+    items:
+      - {slot: 0, item: DIAMOND_SWORD, enchants: {sharpness: 1}}
+      - {slot: 1, item: MUSHROOM_STEW, ability: soup}
+      - {slot: 2, item: MUSHROOM_STEW, ability: soup}
+      - {slot: 3, item: MUSHROOM_STEW, ability: soup}
+      - {slot: 4, item: MUSHROOM_STEW, ability: soup}
+      - {slot: 5, item: MUSHROOM_STEW, ability: soup}
+      - {slot: 6, item: MUSHROOM_STEW, ability: soup}
+      - {slot: 7, item: MUSHROOM_STEW, ability: soup}
+      - {slot: 8, item: MUSHROOM_STEW, ability: soup}
+      - {slot: 9, item: MUSHROOM_STEW, ability: soup}
+      - {slot: 10, item: MUSHROOM_STEW, ability: soup}
+      - {slot: 11, item: MUSHROOM_STEW, ability: soup}
+      - {slot: 12, item: MUSHROOM_STEW, ability: soup}
+      - {slot: 13, item: MUSHROOM_STEW, ability: soup}
+      - {slot: 14, item: MUSHROOM_STEW, ability: soup}
+      - {slot: 15, item: MUSHROOM_STEW, ability: soup}
+      - {slot: 16, item: MUSHROOM_STEW, ability: soup}
+      - {slot: 17, item: MUSHROOM_STEW, ability: soup}
+      - {slot: 18, item: MUSHROOM_STEW, ability: soup}
+      - {slot: 19, item: MUSHROOM_STEW, ability: soup}
+      - {slot: 20, item: MUSHROOM_STEW, ability: soup}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1, feather_falling: 2}}
+
+  combo:
+    display-name: "&b&lCombo"
+    icon: IRON_SWORD
+    description:
+      - "&7Knockback sword, fast and aggressive."
+      - "&7Keep the combo going."
+    settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 15}
+    effects:
+      - {type: speed, level: 1}
+    items:
+      - {slot: 0, item: IRON_SWORD, enchants: {sharpness: 1, knockback: 1}}
+      - {slot: 1, item: GOLDEN_APPLE, amount: 8}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1}}
+
+  sumo:
+    display-name: "&f&lSumo"
+    icon: STICK
+    description:
+      - "&7No armor. Knock your opponent off the"
+      - "&7platform with a Knockback II stick."
+    settings: {natural-regen: true, hunger: false, fall-damage: false, ender-pearl-cooldown: 15}
+    themes: [sumo, sky]
+    effects:
+      - {type: resistance, level: 5}
+    items:
+      - {slot: 0, item: STICK, enchants: {knockback: 2}}
+
+  bowfight:
+    display-name: "&a&lBow Fight"
+    icon: ARROW
+    description:
+      - "&7Power IV bow with a stone sword backup."
+      - "&7Win the long-range duel."
+    settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 15}
+    items:
+      - {slot: 0, item: BOW, enchants: {power: 4, punch: 1, infinity: 1}}
+      - {slot: 1, item: STONE_SWORD}
+      - {slot: 2, item: GOLDEN_APPLE, amount: 4}
+      - {slot: 9, item: ARROW}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2, feather_falling: 2}}
+
+  crossbow:
+    display-name: "&6&lCrossbow"
+    icon: CROSSBOW
+    description:
+      - "&7Quick-charging piercing crossbow"
+      - "&7with an iron sword for close range."
+    settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 15}
+    items:
+      - {slot: 0, item: CROSSBOW, enchants: {quick_charge: 2, piercing: 1}}
+      - {slot: 1, item: IRON_SWORD, enchants: {sharpness: 1}}
+      - {slot: 2, item: GOLDEN_APPLE, amount: 4}
+      - {slot: 9, item: ARROW, amount: 64}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1}}
+
+  knight:
+    display-name: "&7&lKnight"
+    icon: SHIELD
+    description:
+      - "&7Shield, thorns armor and Iron Skin"
+      - "&7for a short damage reduction."
+    settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 15}
+    items:
+      - {slot: 0, item: DIAMOND_SWORD, enchants: {sharpness: 1}}
+      - {slot: 1, item: IRON_INGOT, name: "&7&lIron Skin", ability: barrier}
+      - {slot: 2, item: GOLDEN_APPLE, amount: 4}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2, thorns: 1}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2}}
+      - {slot: offhand, item: SHIELD}
+
+  assassin:
+    display-name: "&8&lAssassin"
+    icon: NETHERITE_SWORD
+    description:
+      - "&7Shadow Step behind your target."
+      - "&7Fast, deadly, fragile."
+    settings: {natural-regen: true, hunger: false, fall-damage: false, ender-pearl-cooldown: 15}
+    effects:
+      - {type: speed, level: 1}
+    items:
+      - {slot: 0, item: DIAMOND_SWORD, enchants: {sharpness: 1}}
+      - {slot: 1, item: ENDER_EYE, ability: shadowstep}
+      - {slot: 2, item: GOLDEN_APPLE, amount: 3}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1, feather_falling: 4}}
+
+  mage:
+    display-name: "&d&lMage"
+    icon: BLAZE_ROD
+    description:
+      - "&7Fire Bolt burns what you look at,"
+      - "&7Frost Nova slows everyone near you."
+    settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 15}
+    items:
+      - {slot: 0, item: STONE_SWORD, enchants: {sharpness: 1}}
+      - {slot: 1, item: BLAZE_ROD, ability: firebolt}
+      - {slot: 2, item: PACKED_ICE, ability: frost}
+      - {slot: 3, item: GOLDEN_APPLE, amount: 4}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1}}
+
+  hunter:
+    display-name: "&2&lHunter"
+    icon: TRIPWIRE_HOOK
+    description:
+      - "&7Grapple an enemy toward you, then finish"
+      - "&7them with the bow or sword."
+    settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 15}
+    items:
+      - {slot: 0, item: IRON_SWORD, enchants: {sharpness: 1}}
+      - {slot: 1, item: BOW, enchants: {power: 2, infinity: 1}}
+      - {slot: 2, item: TRIPWIRE_HOOK, ability: grapple}
+      - {slot: 3, item: GOLDEN_APPLE, amount: 3}
+      - {slot: 9, item: ARROW}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1, feather_falling: 2}}
+
+  windrunner:
+    display-name: "&b&lWindrunner"
+    icon: PHANTOM_MEMBRANE
+    description:
+      - "&7Jump Boost, Rocket Boots and Dash."
+      - "&7Own the air."
+    settings: {natural-regen: true, hunger: false, fall-damage: false, ender-pearl-cooldown: 15}
+    effects:
+      - {type: jump_boost, level: 1}
+    items:
+      - {slot: 0, item: IRON_SWORD, enchants: {sharpness: 1}}
+      - {slot: 1, item: PHANTOM_MEMBRANE, ability: launch}
+      - {slot: 2, item: FEATHER, ability: dash}
+      - {slot: 3, item: GOLDEN_APPLE, amount: 3}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1, feather_falling: 4}}
+
+  medic:
+    display-name: "&a&lMedic"
+    icon: GLISTERING_MELON_SLICE
+    description:
+      - "&7Adrenaline, golden heads and healing"
+      - "&7potions - outlast your enemy."
+    settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 15}
+    items:
+      - {slot: 0, item: IRON_SWORD, enchants: {sharpness: 1}}
+      - {slot: 1, item: SUGAR, ability: adrenaline}
+      - {slot: 2, item: PLAYER_HEAD, amount: 2, ability: golden_head}
+      - {slot: 3, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 4, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 5, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 6, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 7, item: GOLDEN_APPLE, amount: 3}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2}}
+
+  juggernaut:
+    display-name: "&8&lJuggernaut"
+    icon: NETHERITE_CHESTPLATE
+    description:
+      - "&7Slow walking wall of thorns armor."
+      - "&7Hits hard, takes hits harder."
+    settings: {natural-regen: true, hunger: false, fall-damage: false, ender-pearl-cooldown: 25}
+    effects:
+      - {type: slowness, level: 1}
+      - {type: strength, level: 1}
+    items:
+      - {slot: 0, item: DIAMOND_SWORD, enchants: {sharpness: 2}}
+      - {slot: 1, item: GOLDEN_APPLE, amount: 4}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 3}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 3, thorns: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 3, thorns: 1}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 3}}
+
+  bunny:
+    display-name: "&f&lBunny"
+    icon: RABBIT_FOOT
+    description:
+      - "&7Jump Boost III and no fall damage."
+      - "&7Hop around your enemy."
+    settings: {natural-regen: true, hunger: false, fall-damage: false, ender-pearl-cooldown: 15}
+    effects:
+      - {type: jump_boost, level: 3}
+    items:
+      - {slot: 0, item: DIAMOND_SWORD, enchants: {sharpness: 1}}
+      - {slot: 1, item: GOLDEN_APPLE, amount: 6}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1, feather_falling: 4}}
+
+  hardcore:
+    display-name: "&4&lHardcore"
+    icon: SKELETON_SKULL
+    description:
+      - "&7UHC-lite: no regeneration, hunger on,"
+      - "&7only 2 apples and 2 golden heads."
+    settings: {natural-regen: false, hunger: true, fall-damage: true, ender-pearl-cooldown: 15}
+    items:
+      - {slot: 0, item: DIAMOND_SWORD, enchants: {sharpness: 1}}
+      - {slot: 1, item: BOW, enchants: {power: 1}}
+      - {slot: 2, item: GOLDEN_APPLE, amount: 2}
+      - {slot: 3, item: PLAYER_HEAD, amount: 2, ability: golden_head}
+      - {slot: 4, item: WATER_BUCKET}
+      - {slot: 5, item: COOKED_BEEF, amount: 16}
+      - {slot: 8, item: ARROW, amount: 16}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1}}
+
+  skywars:
+    display-name: "&b&lSkyWars"
+    icon: OAK_PLANKS
+    description:
+      - "&7Blocks, pearls and buckets like a"
+      - "&7SkyWars scramble."
+    settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 15}
+    items:
+      - {slot: 0, item: IRON_SWORD, enchants: {sharpness: 1}}
+      - {slot: 1, item: BOW}
+      - {slot: 2, item: GOLDEN_APPLE, amount: 3}
+      - {slot: 3, item: ENDER_PEARL, amount: 2}
+      - {slot: 4, item: WATER_BUCKET}
+      - {slot: 5, item: LAVA_BUCKET}
+      - {slot: 6, item: COBBLESTONE, amount: 64}
+      - {slot: 7, item: OAK_PLANKS, amount: 32}
+      - {slot: 8, item: ARROW, amount: 16}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1}}
+
+  trickster:
+    display-name: "&5&lTrickster"
+    icon: COBWEB
+    description:
+      - "&7Cobwebs, pearls and Blink to get"
+      - "&7out of (or into) trouble."
+    settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 15}
+    items:
+      - {slot: 0, item: DIAMOND_SWORD, enchants: {sharpness: 1}}
+      - {slot: 1, item: COBWEB, amount: 16}
+      - {slot: 2, item: ENDER_PEARL, amount: 2}
+      - {slot: 3, item: AMETHYST_SHARD, ability: blink}
+      - {slot: 4, item: GOLDEN_APPLE, amount: 3}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1}}
+
+  chemist:
+    display-name: "&2&lChemist"
+    icon: SPLASH_POTION
+    description:
+      - "&7Throw harming, slowness and weakness potions"
+      - "&7and heal yourself with splash healing."
+    settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 15}
+    items:
+      - {slot: 0, item: IRON_SWORD, enchants: {sharpness: 1}}
+      - {slot: 1, item: SPLASH_POTION, name: "&4Splash Harming I", potion: {effect: instant_damage, seconds: 1, level: 1}}
+      - {slot: 2, item: SPLASH_POTION, name: "&4Splash Harming I", potion: {effect: instant_damage, seconds: 1, level: 1}}
+      - {slot: 3, item: SPLASH_POTION, name: "&4Splash Harming I", potion: {effect: instant_damage, seconds: 1, level: 1}}
+      - {slot: 4, item: SPLASH_POTION, name: "&4Splash Harming I", potion: {effect: instant_damage, seconds: 1, level: 1}}
+      - {slot: 5, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 6, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 7, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 8, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 9, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 10, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 11, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 12, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
+      - {slot: 13, item: SPLASH_POTION, name: "&8Splash Slowness (1:07)", potion: {effect: slowness, seconds: 67, level: 1}}
+      - {slot: 14, item: SPLASH_POTION, name: "&8Splash Slowness (1:07)", potion: {effect: slowness, seconds: 67, level: 1}}
+      - {slot: 15, item: SPLASH_POTION, name: "&7Splash Weakness (1:07)", potion: {effect: weakness, seconds: 67, level: 1}}
+      - {slot: 16, item: SPLASH_POTION, name: "&7Splash Weakness (1:07)", potion: {effect: weakness, seconds: 67, level: 1}}
+      - {slot: 17, item: GOLDEN_APPLE, amount: 3}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1}}
+
+  paladin:
+    display-name: "&e&lPaladin"
+    icon: GOLDEN_CHESTPLATE
+    description:
+      - "&7Shield, golden apples and constant"
+      - "&7Regeneration I. Slow and steady."
+    settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 15}
+    effects:
+      - {type: regeneration, level: 1}
+    items:
+      - {slot: 0, item: DIAMOND_SWORD}
+      - {slot: 1, item: GOLDEN_APPLE, amount: 4}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2}}
+      - {slot: offhand, item: SHIELD}
+
+  samurai:
+    display-name: "&c&lSamurai"
+    icon: DIAMOND_SWORD
+    description:
+      - "&7Sharp blade, Speed I and a quick Dash"
+      - "&7to close the gap."
+    settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 15}
+    effects:
+      - {type: speed, level: 1}
+    items:
+      - {slot: 0, item: DIAMOND_SWORD, enchants: {sharpness: 2, unbreaking: 1}}
+      - {slot: 1, item: FEATHER, ability: dash}
+      - {slot: 2, item: GOLDEN_APPLE, amount: 3}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1, feather_falling: 2}}
+
+  sprinter:
+    display-name: "&f&lSprinter"
+    icon: LEATHER_BOOTS
+    description:
+      - "&7Speed III and no fall damage - pure"
+      - "&7movement PvP. No abilities."
+    settings: {natural-regen: true, hunger: false, fall-damage: false, ender-pearl-cooldown: 15}
+    effects:
+      - {type: speed, level: 3}
+    items:
+      - {slot: 0, item: IRON_SWORD, enchants: {sharpness: 1}}
+      - {slot: 1, item: GOLDEN_APPLE, amount: 4}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1, feather_falling: 4}}
+
+  knockback:
+    display-name: "&6&lKnockback"
+    icon: PISTON
+    description:
+      - "&7Knockback II sword and a Punch II bow."
+      - "&7Great on the Sky and Sumo maps. No abilities."
+    settings: {natural-regen: true, hunger: false, fall-damage: false, ender-pearl-cooldown: 15}
+    items:
+      - {slot: 0, item: DIAMOND_SWORD, enchants: {knockback: 2}}
+      - {slot: 1, item: BOW, enchants: {power: 1, punch: 2}}
+      - {slot: 2, item: GOLDEN_APPLE, amount: 4}
+      - {slot: 8, item: ARROW, amount: 32}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1}}
+
+  warlock:
+    display-name: "&5&lWarlock"
+    icon: ENCHANTED_BOOK
+    description:
+      - "&7Thunder Wand and Frost Nova - control the"
+      - "&7fight from a distance."
+    settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 15}
+    items:
+      - {slot: 0, item: IRON_SWORD, enchants: {sharpness: 1}}
+      - {slot: 1, item: BLAZE_ROD, ability: thunder}
+      - {slot: 2, item: PACKED_ICE, ability: frost}
+      - {slot: 3, item: GOLDEN_APPLE, amount: 4}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1}}

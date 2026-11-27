@@ -3,6 +3,14 @@
 A full-featured **kit PvP / duels plugin** for **Paper and Spigot** (1.20.x, Java 17).
 Challenge friends, run free-for-alls, play ranked, spectate, edit your kit layout, and enjoy a polished GUI.
 
+## Kits (35) - see KITS.md for every loadout
+
+All kits wear **diamond armor** (Balls = Netherite Protection IV, Sumo = no armor) and **everything has durability**.
+Classic, UHC (3 water + 3 lava buckets), OP, Archer, Tank, Ninja, Axe, **Balls**, **Vanilla** (no abilities), NoDebuff, Debuff,
+Pot PvP, Gapple, Soup, Combo, Sumo, Bow Fight, Crossbow, Knight, Assassin, Mage, Hunter, Windrunner, Medic, Juggernaut,
+Bunny, Hardcore, SkyWars, Trickster, Chemist, Paladin, Samurai, Sprinter, Knockback, Warlock. No kit has Fire Aspect. Abilities were nerfed by about half; `abilities-enabled: false` in `config.yml`
+removes every ability item. Maps: Colosseum, Sky Islands, Castle, Wasteland, **Nether Bastion, Frozen Lake, Sumo Ring**.
+
 ## New in this version
 
 - **Auto-built maps**: every duel / queue match gets a *fresh* map (Colosseum, Sky Islands, Castle or Wasteland) built in a

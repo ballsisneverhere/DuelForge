@@ -177,6 +177,7 @@ rematch:
   expired: "&cThat rematch has expired."
 
 ability:
+  blocked: "&cSomething is in the way."
   cooldown: "&c{ability} &7on cooldown: &f{seconds}s"
   used: "&7Used {ability}&7."
 
@@ -346,6 +347,8 @@ gui:
     hunger: "&7Hunger: {value}"
     fall: "&7Fall damage: {value}"
     effect: "&7Effect: &f{effect} {level}"
+    abilities-yes: "&7Abilities: &eYes"
+    abilities-no: "&7Abilities: &aNone (normal PvP)"
     yes: "&aYes"
     no: "&cNo"
   preview:

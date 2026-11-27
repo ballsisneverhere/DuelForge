@@ -21,6 +21,10 @@ public final class Kit {
     public boolean enabled = true;
     /** Created in-game with /duel admin kit create (stored in custom-kits.yml). */
     public boolean custom;
+    /** True if the kit contains at least one ability item. */
+    public boolean abilities;
+    /** If not empty, auto-built maps for this kit are picked from these themes only. */
+    public List<String> themes = new ArrayList<>();
     public String permission = "";
 
     public final Map<Integer, ItemStack> inventory = new LinkedHashMap<>();

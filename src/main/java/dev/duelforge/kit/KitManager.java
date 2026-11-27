@@ -78,6 +78,7 @@ public final class KitManager {
         k.description = s.getStringList("description");
         k.enabled = s.getBoolean("enabled", true);
         k.permission = s.getString("permission", "");
+        k.themes = s.getStringList("themes");
         ConfigurationSection st = s.getConfigurationSection("settings");
         if (st != null) {
             k.naturalRegen = st.getBoolean("natural-regen", true);
@@ -88,6 +89,7 @@ public final class KitManager {
         for (Map<?, ?> m : s.getMapList("items")) {
             ItemStack it = parseItem(m, unbreakable);
             if (it == null) continue;
+            if (m.get("ability") != null) k.abilities = true;
             Object slot = m.get("slot");
             if (slot instanceof Number n) {
                 int i = n.intValue();
@@ -106,6 +108,7 @@ public final class KitManager {
     }
 
     private ItemStack parseItem(Map<?, ?> raw, boolean defaultUnbreakable) {
+        if (raw.get("ability") != null && !plugin.abilities().enabled()) return null;
         Material mat = Material.matchMaterial(String.valueOf(raw.get("item")));
         if (mat == null) {
             plugin.getLogger().warning("Unknown material in kits.yml: " + raw.get("item"));
@@ -151,7 +154,7 @@ public final class KitManager {
             meta.getPersistentDataContainer().set(plugin.abilityKey, PersistentDataType.STRING, ability);
             if (raw.get("name") == null) meta.setDisplayName(Fmt.color(plugin.abilities().name(ability)));
             lore.add(Fmt.color(plugin.abilities().description(ability)));
-            lore.add(Fmt.color("&7Right-click to use &8| &7Cooldown: &f" + plugin.abilities().cooldown(ability) + "s"));
+            lore.add(Fmt.color("&7Right-click to use &8| &7Cooldown: &f" + plugin.abilities().cooldownText(ability) + "s"));
         }
         if (!lore.isEmpty()) meta.setLore(lore);
         it.setItemMeta(meta);

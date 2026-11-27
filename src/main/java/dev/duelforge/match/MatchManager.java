@@ -320,9 +320,10 @@ public final class MatchManager {
         return describe(r.teamSize, r.ranked, r.bestOf);
     }
 
-    private ArenaBuilder.Theme pickTheme() {
+    private ArenaBuilder.Theme pickTheme(Kit kit) {
         List<ArenaBuilder.Theme> pool = new ArrayList<>();
-        for (String s : cfg().getStringList("matches.themes")) {
+        List<String> names = kit != null && !kit.themes.isEmpty() ? kit.themes : cfg().getStringList("matches.themes");
+        for (String s : names) {
             ArenaBuilder.Theme t = ArenaBuilder.Theme.parse(s);
             if (t != null) pool.add(t);
         }
@@ -559,7 +560,7 @@ public final class MatchManager {
         }
         m.state = State.BUILDING;
         for (Player p : m.viewers()) msg().send(p, "match.building");
-        plugin.instances().acquire(pickTheme(), arena -> {
+        plugin.instances().acquire(pickTheme(m.kit), arena -> {
             if (!matches.containsKey(m.id) || m.cancelled) {
                 plugin.instances().release(arena, null);
                 return;
