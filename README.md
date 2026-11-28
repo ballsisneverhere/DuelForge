@@ -5,7 +5,7 @@ Challenge friends, run free-for-alls, play ranked, spectate, edit your kit layou
 
 ## Kits (35) - see KITS.md for every loadout
 
-All kits wear **diamond armor** (Balls = Netherite Protection IV, Sumo = no armor) and **everything has durability**.
+Kits wear **diamond armor** (Protection II-III + Unbreaking II on most); **OP, Juggernaut and Balls use Netherite**; Sumo has none. **Everything has durability**.
 Classic, UHC (3 water + 3 lava buckets), OP, Archer, Tank, Ninja, Axe, **Balls**, **Vanilla** (no abilities), NoDebuff, Debuff,
 Pot PvP, Gapple, Soup, Combo, Sumo, Bow Fight, Crossbow, Knight, Assassin, Mage, Hunter, Windrunner, Medic, Juggernaut,
 Bunny, Hardcore, SkyWars, Trickster, Chemist, Paladin, Samurai, Sprinter, Knockback, Warlock. No kit has Fire Aspect. Abilities were nerfed by about half; `abilities-enabled: false` in `config.yml`

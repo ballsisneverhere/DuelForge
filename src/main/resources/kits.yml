@@ -22,10 +22,10 @@ kits:
       - {slot: 2, item: GOLDEN_APPLE, amount: 6}
       - {slot: 3, item: FISHING_ROD}
       - {slot: 8, item: ARROW, amount: 32}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2, unbreaking: 2}}
 
   uhc:
     display-name: "&6&lUHC"
@@ -62,7 +62,7 @@ kits:
     display-name: "&c&lOP"
     icon: NETHERITE_SWORD
     description:
-      - "&7Strong but fair: enchanted diamond gear,"
+      - "&7Strong but fair: enchanted Netherite gear,"
       - "&7enchanted apples and a nerfed lightning wand."
     settings: {natural-regen: true, hunger: false, fall-damage: true, ender-pearl-cooldown: 12}
     items:
@@ -75,10 +75,10 @@ kits:
       - {slot: 6, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
       - {slot: 7, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
       - {slot: 8, item: ARROW, amount: 24}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 3, unbreaking: 3}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 3, unbreaking: 3}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 3, unbreaking: 3}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 3, unbreaking: 3, feather_falling: 3}}
+      - {slot: helmet, item: NETHERITE_HELMET, enchants: {protection: 3, unbreaking: 3}}
+      - {slot: chestplate, item: NETHERITE_CHESTPLATE, enchants: {protection: 3, unbreaking: 3}}
+      - {slot: leggings, item: NETHERITE_LEGGINGS, enchants: {protection: 3, unbreaking: 3}}
+      - {slot: boots, item: NETHERITE_BOOTS, enchants: {protection: 3, unbreaking: 3, feather_falling: 3}}
 
   archer:
     display-name: "&a&lArcher"
@@ -93,10 +93,10 @@ kits:
       - {slot: 2, item: GOLDEN_APPLE, amount: 4}
       - {slot: 3, item: RABBIT_FOOT, ability: leap}
       - {slot: 9, item: ARROW}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1, feather_falling: 2}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2, feather_falling: 2, unbreaking: 2}}
 
   tank:
     display-name: "&9&lTank"
@@ -111,10 +111,10 @@ kits:
       - {slot: 0, item: DIAMOND_SWORD}
       - {slot: 1, item: ANVIL, ability: slam}
       - {slot: 2, item: GOLDEN_APPLE, amount: 4}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 3}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 3}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 3, unbreaking: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 3, unbreaking: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 3, unbreaking: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 3, unbreaking: 2}}
       - {slot: offhand, item: SHIELD}
 
   ninja:
@@ -131,10 +131,10 @@ kits:
       - {slot: 1, item: FEATHER, ability: dash}
       - {slot: 2, item: INK_SAC, ability: smoke_bomb}
       - {slot: 3, item: GOLDEN_APPLE, amount: 3}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1, feather_falling: 4}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2, feather_falling: 4, unbreaking: 2}}
 
   axe:
     display-name: "&4&lAxe"
@@ -147,10 +147,10 @@ kits:
       - {slot: 0, item: DIAMOND_AXE, enchants: {sharpness: 2}}
       - {slot: 1, item: BLAZE_POWDER, ability: berserk}
       - {slot: 2, item: GOLDEN_APPLE, amount: 4}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 3, unbreaking: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 3, unbreaking: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 3, unbreaking: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 3, unbreaking: 2}}
       - {slot: offhand, item: SHIELD}
 
   balls:
@@ -342,10 +342,10 @@ kits:
       - {slot: 0, item: DIAMOND_SWORD, enchants: {sharpness: 3, unbreaking: 3}}
       - {slot: 1, item: GOLDEN_APPLE, amount: 16}
       - {slot: 2, item: ENCHANTED_GOLDEN_APPLE, amount: 4}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2, unbreaking: 3}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2, unbreaking: 3}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2, unbreaking: 3}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2, unbreaking: 3}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 3, unbreaking: 3}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 3, unbreaking: 3}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 3, unbreaking: 3}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 3, unbreaking: 3}}
 
   soup:
     display-name: "&e&lSoup"
@@ -378,10 +378,10 @@ kits:
       - {slot: 18, item: MUSHROOM_STEW, ability: soup}
       - {slot: 19, item: MUSHROOM_STEW, ability: soup}
       - {slot: 20, item: MUSHROOM_STEW, ability: soup}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1, feather_falling: 2}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2, feather_falling: 2, unbreaking: 2}}
 
   combo:
     display-name: "&b&lCombo"
@@ -395,10 +395,10 @@ kits:
     items:
       - {slot: 0, item: IRON_SWORD, enchants: {sharpness: 1, knockback: 1}}
       - {slot: 1, item: GOLDEN_APPLE, amount: 8}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2, unbreaking: 2}}
 
   sumo:
     display-name: "&f&lSumo"
@@ -425,10 +425,10 @@ kits:
       - {slot: 1, item: STONE_SWORD}
       - {slot: 2, item: GOLDEN_APPLE, amount: 4}
       - {slot: 9, item: ARROW}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2, feather_falling: 2}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 3, unbreaking: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 3, unbreaking: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 3, unbreaking: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 3, feather_falling: 2, unbreaking: 2}}
 
   crossbow:
     display-name: "&6&lCrossbow"
@@ -442,10 +442,10 @@ kits:
       - {slot: 1, item: IRON_SWORD, enchants: {sharpness: 1}}
       - {slot: 2, item: GOLDEN_APPLE, amount: 4}
       - {slot: 9, item: ARROW, amount: 64}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2, unbreaking: 2}}
 
   knight:
     display-name: "&7&lKnight"
@@ -458,10 +458,10 @@ kits:
       - {slot: 0, item: DIAMOND_SWORD, enchants: {sharpness: 1}}
       - {slot: 1, item: IRON_INGOT, name: "&7&lIron Skin", ability: barrier}
       - {slot: 2, item: GOLDEN_APPLE, amount: 4}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2, thorns: 1}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 3, unbreaking: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 3, thorns: 1, unbreaking: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 3, unbreaking: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 3, unbreaking: 2}}
       - {slot: offhand, item: SHIELD}
 
   assassin:
@@ -477,10 +477,10 @@ kits:
       - {slot: 0, item: DIAMOND_SWORD, enchants: {sharpness: 1}}
       - {slot: 1, item: ENDER_EYE, ability: shadowstep}
       - {slot: 2, item: GOLDEN_APPLE, amount: 3}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1, feather_falling: 4}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2, feather_falling: 4, unbreaking: 2}}
 
   mage:
     display-name: "&d&lMage"
@@ -494,10 +494,10 @@ kits:
       - {slot: 1, item: BLAZE_ROD, ability: firebolt}
       - {slot: 2, item: PACKED_ICE, ability: frost}
       - {slot: 3, item: GOLDEN_APPLE, amount: 4}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2, unbreaking: 2}}
 
   hunter:
     display-name: "&2&lHunter"
@@ -512,10 +512,10 @@ kits:
       - {slot: 2, item: TRIPWIRE_HOOK, ability: grapple}
       - {slot: 3, item: GOLDEN_APPLE, amount: 3}
       - {slot: 9, item: ARROW}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1, feather_falling: 2}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2, feather_falling: 2, unbreaking: 2}}
 
   windrunner:
     display-name: "&b&lWindrunner"
@@ -531,10 +531,10 @@ kits:
       - {slot: 1, item: PHANTOM_MEMBRANE, ability: launch}
       - {slot: 2, item: FEATHER, ability: dash}
       - {slot: 3, item: GOLDEN_APPLE, amount: 3}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1, feather_falling: 4}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2, feather_falling: 4, unbreaking: 2}}
 
   medic:
     display-name: "&a&lMedic"
@@ -552,16 +552,16 @@ kits:
       - {slot: 5, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
       - {slot: 6, item: SPLASH_POTION, name: "&dSplash Healing II", potion: {effect: instant_health, seconds: 1, level: 2}}
       - {slot: 7, item: GOLDEN_APPLE, amount: 3}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 3, unbreaking: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 3, unbreaking: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 3, unbreaking: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 3, unbreaking: 2}}
 
   juggernaut:
     display-name: "&8&lJuggernaut"
     icon: NETHERITE_CHESTPLATE
     description:
-      - "&7Slow walking wall of thorns armor."
+      - "&7Slow walking wall of Netherite thorns armor."
       - "&7Hits hard, takes hits harder."
     settings: {natural-regen: true, hunger: false, fall-damage: false, ender-pearl-cooldown: 25}
     effects:
@@ -570,10 +570,10 @@ kits:
     items:
       - {slot: 0, item: DIAMOND_SWORD, enchants: {sharpness: 2}}
       - {slot: 1, item: GOLDEN_APPLE, amount: 4}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 3}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 3, thorns: 2}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 3, thorns: 1}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 3}}
+      - {slot: helmet, item: NETHERITE_HELMET, enchants: {protection: 3, unbreaking: 2}}
+      - {slot: chestplate, item: NETHERITE_CHESTPLATE, enchants: {protection: 3, thorns: 2, unbreaking: 2}}
+      - {slot: leggings, item: NETHERITE_LEGGINGS, enchants: {protection: 3, thorns: 1, unbreaking: 2}}
+      - {slot: boots, item: NETHERITE_BOOTS, enchants: {protection: 3, unbreaking: 2}}
 
   bunny:
     display-name: "&f&lBunny"
@@ -587,10 +587,10 @@ kits:
     items:
       - {slot: 0, item: DIAMOND_SWORD, enchants: {sharpness: 1}}
       - {slot: 1, item: GOLDEN_APPLE, amount: 6}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1, feather_falling: 4}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2, feather_falling: 4, unbreaking: 2}}
 
   hardcore:
     display-name: "&4&lHardcore"
@@ -629,10 +629,10 @@ kits:
       - {slot: 6, item: COBBLESTONE, amount: 64}
       - {slot: 7, item: OAK_PLANKS, amount: 32}
       - {slot: 8, item: ARROW, amount: 16}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2, unbreaking: 2}}
 
   trickster:
     display-name: "&5&lTrickster"
@@ -647,10 +647,10 @@ kits:
       - {slot: 2, item: ENDER_PEARL, amount: 2}
       - {slot: 3, item: AMETHYST_SHARD, ability: blink}
       - {slot: 4, item: GOLDEN_APPLE, amount: 3}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2, unbreaking: 2}}
 
   chemist:
     display-name: "&2&lChemist"
@@ -678,10 +678,10 @@ kits:
       - {slot: 15, item: SPLASH_POTION, name: "&7Splash Weakness (1:07)", potion: {effect: weakness, seconds: 67, level: 1}}
       - {slot: 16, item: SPLASH_POTION, name: "&7Splash Weakness (1:07)", potion: {effect: weakness, seconds: 67, level: 1}}
       - {slot: 17, item: GOLDEN_APPLE, amount: 3}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2, unbreaking: 2}}
 
   paladin:
     display-name: "&e&lPaladin"
@@ -695,10 +695,10 @@ kits:
     items:
       - {slot: 0, item: DIAMOND_SWORD}
       - {slot: 1, item: GOLDEN_APPLE, amount: 4}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 3, unbreaking: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 3, unbreaking: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 3, unbreaking: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 3, unbreaking: 2}}
       - {slot: offhand, item: SHIELD}
 
   samurai:
@@ -714,10 +714,10 @@ kits:
       - {slot: 0, item: DIAMOND_SWORD, enchants: {sharpness: 2, unbreaking: 1}}
       - {slot: 1, item: FEATHER, ability: dash}
       - {slot: 2, item: GOLDEN_APPLE, amount: 3}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1, feather_falling: 2}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2, feather_falling: 2, unbreaking: 2}}
 
   sprinter:
     display-name: "&f&lSprinter"
@@ -731,10 +731,10 @@ kits:
     items:
       - {slot: 0, item: IRON_SWORD, enchants: {sharpness: 1}}
       - {slot: 1, item: GOLDEN_APPLE, amount: 4}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1, feather_falling: 4}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2, feather_falling: 4, unbreaking: 2}}
 
   knockback:
     display-name: "&6&lKnockback"
@@ -748,10 +748,10 @@ kits:
       - {slot: 1, item: BOW, enchants: {power: 1, punch: 2}}
       - {slot: 2, item: GOLDEN_APPLE, amount: 4}
       - {slot: 8, item: ARROW, amount: 32}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2, unbreaking: 2}}
 
   warlock:
     display-name: "&5&lWarlock"
@@ -765,7 +765,7 @@ kits:
       - {slot: 1, item: BLAZE_ROD, ability: thunder}
       - {slot: 2, item: PACKED_ICE, ability: frost}
       - {slot: 3, item: GOLDEN_APPLE, amount: 4}
-      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 1}}
-      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 1}}
-      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 1}}
-      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 1}}
+      - {slot: helmet, item: DIAMOND_HELMET, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: chestplate, item: DIAMOND_CHESTPLATE, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: leggings, item: DIAMOND_LEGGINGS, enchants: {protection: 2, unbreaking: 2}}
+      - {slot: boots, item: DIAMOND_BOOTS, enchants: {protection: 2, unbreaking: 2}}
